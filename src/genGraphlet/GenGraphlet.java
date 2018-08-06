@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import graphlets.AbstractGraphlet;
@@ -14,48 +15,72 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 
 	byte[][] matrix;
 
-	public GenGraphlet(boolean isOrbitRep, String representation) {
+	public GenGraphlet(String representation,boolean isOrbitRep) {
 		super(isOrbitRep);
 		order = (1 + (int) Math.sqrt(1 + 4 * representation.length())) / 2;
 		matrix = new byte[order][order];
 		for (int i = 0; i < representation.length(); i++) {
-			switch(representation.charAt(i)):
-				case '1
-			matrix[i / (order - 1)][i % (order - 1) + ((i % (order - 1) < i / (order - 1)) ? 0 : 1)] = (representation
-					.charAt(i)='0'?0;
-			if (representation.charAt(i) != 0) {
+			int x = i / (order - 1);
+			int y = i % (order - 1) + ((i % (order - 1) >= x) ? 1 : 0);
+			switch (representation.charAt(i)) {
+			case '+':
+			case '1':
+				matrix[x][y] = 1;
 				size++;
+				break;
+			case '-':
+			case '2':
+				matrix[x][y] = 2;
+				size++;
+				break;
+			default:
+				matrix[x][y] = 0;
 			}
 		}
 		for (int i = 0; i < order; i++) {
-			matrix[i][i] = '0';
+			matrix[i][i] = 0;
 		}
 	}
 
 	public String toString() {
 		String result = "";
-		for (char[] line : matrix) {
-			result += Arrays.toString(line);
+		for (byte[] line : matrix) {
+			for (byte b : line) {
+				if(b==1) {
+					result+="+";
+				}else if(b==2) {
+					result+="-";
+				}else if(b==0) {
+					result+="0";
+				}
+			}
 			result += "\n";
 		}
 		return result;
 		// return result.substring(0,result.length()-1);
 	}
 
+	public static void main(String[]args) {
+		GenGraphlet gg = new GenGraphlet("----+--0++-0+++00000",true);
+		System.out.println(gg);
+		System.out.println(gg.getOrbits());
+		System.out.println(gg.cosetreps());
+	}
+	
 	@Override
 	public GenGraphlet copy() {
-		return new GenGraphlet(isOrbitRep, representation());
+		return new GenGraphlet(representation(),isOrbitRep );
 	}
 
 	@Override
 	public void swap(int a, int b) {
 		for (int i = 0; i < order; i++) {
-			char reserve = matrix[a][i];
+			byte reserve = matrix[a][i];
 			matrix[a][i] = matrix[b][i];
 			matrix[b][i] = reserve;
 		}
 		for (int i = 0; i < order; i++) {
-			char reserve = matrix[i][a];
+			byte reserve = matrix[i][a];
 			matrix[i][a] = matrix[i][b];
 			matrix[i][b] = reserve;
 		}
@@ -68,7 +93,16 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 		for (int i = 0; i < order; i++) {
 			for (int j = 0; j < order; j++) {
 				if (i != j) {
-					result += matrix[i][j];
+					switch (matrix[i][j]) {
+					case 1:
+						result += '+';
+						break;
+					case 2:
+						result += '-';
+						break;
+					case 0:
+						result += '0';
+					}
 				}
 			}
 		}
@@ -130,7 +164,6 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 		return builder;
 	}
 
-
 	@Override
 	public boolean isConnected() {
 		List<Integer> result = new ArrayList<>();
@@ -150,99 +183,194 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 
 	@Override
 	public void addNode() {
-		char[][] oldMatrix = matrix;
+		byte[][] oldMatrix = matrix;
 		order++;
-		matrix = new char[order][order];
+		matrix = new byte[order][order];
 		for (int i = 0; i < order - 1; i++) {
 			for (int j = 0; j < order - 1; j++) {
 				matrix[i][j] = oldMatrix[i][j];
 			}
-			matrix[i][order-1]='0';
-			matrix[order-1][i]='0';
+			matrix[i][order - 1] = 0;
+			matrix[order - 1][i] = 0;
 		}
-		matrix[order-1][order-1]='0';
-
+		matrix[order - 1][order - 1] = 0;
+		ready=false;
 	}
-	
 
 	@Override
 	public void removeNode(int i) throws IllegalGraphActionException {
 		checkNode(i);
-		char[][] oldMatrix = matrix;
+		byte[][] oldMatrix = matrix;
 		order--;
-		matrix = new char[order][order];
+		matrix = new byte[order][order];
 		for (int k = 0; k < order; k++) {
 			for (int j = 0; j < order; j++) {
-				matrix[k][j] = oldMatrix[k+(k>=i?1:0)][j+(j>=i?1:0)];
+				matrix[k][j] = oldMatrix[k + (k >= i ? 1 : 0)][j + (j >= i ? 1 : 0)];
 			}
 		}
 
+		ready=false;
 	}
 
-	public static void main(String[] args) throws IllegalGraphActionException {
-		GenGraphlet gg = new GenGraphlet(true, "++-000");
-		System.out.println(gg);
-		gg.removeNode(2);
-		System.out.println(gg);
-	}
 	@Override
-	public void addEdge(int i, int j, Character status) throws IllegalGraphActionException {
-		if(matrix)
+	public void addEdge(int i, int j, Byte status) throws IllegalGraphActionException {
+		checkNode(i);
+		checkNode(j);
+		if (status < 0) {
+			status = (byte) (-status);
+			int reserve = i;
+			i = j;
+			j = reserve;
+		}
+		if (matrix[i][j] != 0) {
+			throw new IllegalGraphActionException("No parallel edges allowed.");
+		} else {
+			switch (status) {
+			case 1:
+			case '+':
+				matrix[i][j] = 1;
+				size++;
+				break;
+			case 2:
+			case '-':
+				matrix[i][j] = 2;
+				size++;
+				break;
+			default:
+				throw new IllegalGraphActionException("Invalid edge type.");
+			}
+		}
+		ready=false;
 
 	}
 
 	@Override
 	public void removeEdge(int i, int j) throws IllegalGraphActionException {
-		// TODO Auto-generated method stub
-
+		checkNode(i);
+		checkNode(j);
+		checkEdge(i, j);
+		if (matrix[i][j] != 0) {
+			matrix[i][j] = 0;
+			size--;
+		}
+		if (matrix[j][i] != 0) {
+			matrix[j][i] = 0;
+			size--;
+		}
+		ready=false;
 	}
 
 	@Override
-	public void removeEdge(int i, int j, Character type) throws IllegalGraphActionException {
-		// TODO Auto-generated method stub
+	public void removeEdge(int i, int j, Byte type) throws IllegalGraphActionException {
+		checkNode(i);
+		checkNode(j);
 
+		if (type < 0) {
+			type = (byte) (-type);
+			int reserve = i;
+			i = j;
+			j = reserve;
+		}
+		if (matrix[i][j] == type) {
+			matrix[i][j] = 0;
+			size--;
+		} else {
+			throw new IllegalGraphActionException(
+					"No edge of type " + type + " present between node " + i + " and " + j);
+		}
+
+		ready=false;
 	}
 
 	@Override
-	public SortedSet<Character> getEdges(int i, int j) throws IllegalGraphActionException {
-		// TODO Auto-generated method stub
-		return null;
+	public SortedSet<Byte> getEdges(int i, int j) throws IllegalGraphActionException {
+		checkNode(i);
+		checkNode(j);
+		SortedSet<Byte> result = new TreeSet<>();
+		if (matrix[i][j] != 0) {
+			result.add(matrix[i][j]);
+		}
+		if (matrix[j][i] != 0) {
+			result.add((byte) -matrix[j][i]);
+		}
+		return result;
 	}
 
 	@Override
-	public SortedSet<Integer> getNeighbours(int node, Character condition) {
-		// TODO Auto-generated method stub
-		return null;
+	public SortedSet<Integer> getNeighbours(int node, Byte condition) {
+		SortedSet<Integer> result = new TreeSet<>();
+		if (condition < 0) {
+			for (int i = 0; i < order; i++) {
+				if (matrix[i][node] == (byte) -condition) {
+					result.add(i);
+				}
+			}
+
+		} else {
+			for (int i = 0; i < order; i++) {
+				if (matrix[node][i] == condition) {
+					result.add(i);
+				}
+			}
+		}
+		return result;
 	}
 
 	@Override
-	public SortedMap<Integer, List<Character>> getNeighbours(int node) {
-		// TODO Auto-generated method stub
-		return null;
+	public SortedMap<Integer, SortedSet<Byte>> getNeighbours(int node) {
+		SortedMap<Integer, SortedSet<Byte>> result = new TreeMap<>();
+		for (int i = 0; i < order; i++) {
+			SortedSet<Byte> part = new TreeSet<>();
+			if (matrix[i][node] != 0) {
+				part.add(matrix[i][node]);
+			}
+			if (matrix[node][i] != 0) {
+				part.add((byte)-matrix[node][i]);
+			}
+			if (part.size() != 0) {
+				result.put(i, part);
+			}
+		}
+		return result;
 	}
 
 	@Override
 	public double density() {
-		// TODO Auto-generated method stub
-		return 0;
+		return size / (order - 1.) / order;
 	}
 
 	@Override
-	public SortedSet<Character> edgeTypes() {
-		// TODO Auto-generated method stub
-		return null;
+	public SortedSet<Byte> edgeTypes() {
+		SortedSet<Byte> result = new TreeSet<>();
+		result.add((byte) 1);
+		result.add((byte) -1);
+		result.add((byte) 2);
+		result.add((byte) -2);
+		return result;
 	}
 
 	@Override
-	public List<SortedSet<Character>> validEdges() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<SortedSet<Byte>> validEdges() {
+		List<SortedSet<Byte>> result = new ArrayList<>();
+		byte[][] options = { { 0, -1, -2 }, { 0, 1, 2 } };
+		for (int i = 1; i < 9; i++) {
+			int a = i % 3;
+			int b = i / 3;
+			SortedSet<Byte> piece = new TreeSet<>();
+			if (options[0][a] != 0) {
+				piece.add(options[0][a]);
+			}
+			if (options[1][b] != 0) {
+				piece.add(options[1][b]);
+			}
+			result.add(piece);
+		}
+		return result;
 	}
 
 	@Override
 	public boolean isComplete() {
-		// TODO Auto-generated method stub
-		return false;
+		return size == order * (order - 1);
 	}
 
 }

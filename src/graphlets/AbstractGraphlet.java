@@ -31,6 +31,7 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Graph<T>
 
 	protected Set<String> representations;
 	protected List<List<Integer>> automorphisms;
+
 	protected String canonical;
 	protected List<SortedSet<Integer>> orbits;
 	protected boolean isOrbitRep;
@@ -150,7 +151,7 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Graph<T>
 					}
 					automorphisms.add(new ArrayList<>(current));
 				}
-				if (canonical.compareTo( s) < 0) {
+				if (canonical.compareTo( s) > 0) {
 					canonical = s;
 					result = false;
 				}
@@ -275,4 +276,7 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Graph<T>
 		return cosetreps;
 	}
 
+	public List<List<Integer>> getAutomorphisms() {
+		return automorphisms;
+	}
 }

@@ -293,18 +293,18 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 	}
 
 	@Override
-	public SortedMap<Integer, List<Boolean>> getNeighbours(int node) {
-		SortedMap<Integer, List<Boolean>> result = new TreeMap<>();
+	public SortedMap<Integer, SortedSet<Boolean>> getNeighbours(int node) {
+		SortedMap<Integer, SortedSet<Boolean>> result = new TreeMap<>();
 		for (int i : arcs.get(node)) {
-			List<Boolean> l = new ArrayList<Boolean>();
+			SortedSet<Boolean> l = new TreeSet<>();
 			l.add(true);
 			result.put(i, l);
 		}
 		for (int i = 0; i < order; i++) {
 			if (arcs.get(i).contains(node)) {
-				List<Boolean> l = result.get(i);
+				SortedSet<Boolean> l = result.get(i);
 				if (l == null) {
-					l = new ArrayList<Boolean>();
+					l = new TreeSet<>();
 				}
 				l.add(false);
 				result.put(i, l);

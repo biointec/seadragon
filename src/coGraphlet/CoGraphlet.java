@@ -3,6 +3,10 @@ package coGraphlet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import diGraphlet.DiGraphlet;
 import graphlets.AbstractGraphlet;
@@ -64,6 +68,7 @@ public class CoGraphlet extends AbstractGraphlet<Integer> {
 		}
 		return result;
 	}
+	
 
 	@Override
 	public void swap(int a, int b) {
@@ -156,14 +161,8 @@ public class CoGraphlet extends AbstractGraphlet<Integer> {
 
 	@Override
 	public CoGraphlet copy() {
-		CoGraphlet result = new CoGraphlet(representation(), nColors, isOrbitRep);
-		result.representations = representations;
-		result.automorphisms = automorphisms;
-		result.canonical = canonical;
-		result.order = order;
-		result.size = size;
-		result.orbits = orbits;
-		return result;
+		
+		return new CoGraphlet(representation(), nColors, isOrbitRep);
 
 	}
 
@@ -179,6 +178,7 @@ public class CoGraphlet extends AbstractGraphlet<Integer> {
 			}
 		}
 		matrix[order - 1] = new int[order - 1];
+		ready = false;
 	}
 
 	@Override
@@ -187,17 +187,135 @@ public class CoGraphlet extends AbstractGraphlet<Integer> {
 			throw new IllegalGraphActionException("No self-loops allowed");
 		} else if (matrix[i][j] != 0) {
 			throw new IllegalGraphActionException("No double edges allowed");
+		}else if(status<=0 || status >nColors){
+			throw new IllegalGraphActionException(status+" is not a valid edge type");
 		} else if (i > j) {
 			matrix[i][j] = status;
 		} else {
 			matrix[j][i] = status;
 		}
 		size++;
+		ready = false;
 	}
 
 	@Override
-	public boolean areConnected(int a, int b) {
-		return a<b?matrix[b][a]!=0:matrix[a][b]!=0;
+	public void removeNode(int i) throws IllegalGraphActionException {
+		checkNode(i);
+		int[][] oldMatrix = matrix;
+		order--;
+		matrix = new int[order][order];
+		for (int k = 0; k < order; k++) {
+			for (int j = 0; j < k; j++) {
+				matrix[k][j] = oldMatrix[k+(k>=i?1:0)][j+(j>=i?1:0)];
+			}
+		}
+		ready=false;
+	}
+
+	@Override
+	public void removeEdge(int i, int j) throws IllegalGraphActionException {
+		checkNode(i);
+		checkNode(j);
+		checkEdge(i,j);
+		matrix[Math.max(i, j)][Math.min(i, j)]=0;
+		ready=false;
+
+	}
+	@Override
+	public void removeEdge(int i, int j, Integer type) throws IllegalGraphActionException {
+		checkNode(i);
+		checkNode(j);
+		if(matrix[Math.max(i, j)][Math.min(i, j)]!=type) {
+			throw new IllegalGraphActionException("No edge of type "+ type+" present between nodes "+i+" and "+j);
+		}
+		matrix[Math.max(i, j)][Math.min(i, j)]=0;
+		ready=false;
+	}
+
+	@Override
+	public SortedSet<Integer> getEdges(int i, int j) throws IllegalGraphActionException {
+		int b=Math.min(i,j);
+		int a = Math.max(i, j);
+		SortedSet<Integer> result = new TreeSet<>();
+		if(matrix[a][b]!=0) {
+			result.add(matrix[a][b]);
+		}
+		return result;
+	}
+
+	@Override
+	public SortedSet<Integer> getNeighbours(int node, Integer condition) {
+		SortedSet<Integer> result = new TreeSet<>();
+		for(int i=0;i<node;i++) {
+			if(matrix[node][i]==condition) {
+				result.add(i);
+			}
+		}
+		for(int i=node+1;i<order;i++) {
+			if(matrix[i][node]==condition) {
+				result.add(i);
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public SortedMap<Integer, SortedSet<Integer>> getNeighbours(int node) {
+		SortedMap<Integer, SortedSet<Integer>> result = new TreeMap<>();
+		for(int i=0;i<node;i++) {
+			if(matrix[node][i]!=0) {
+				SortedSet<Integer> edge = new TreeSet<>();
+				edge.add(matrix[node][i]);
+				result.put(i,edge);
+			}
+		}
+		for(int i=node+1;i<order;i++) {
+			if(matrix[i][node]!=0) {
+				SortedSet<Integer> edge = new TreeSet<>();
+				edge.add(matrix[i][node]);
+				result.put(i,edge);
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public double density() {
+		return size / (order * (order - 1.)) * nColors;
+	}
+
+	@Override
+	public SortedSet<Integer> edgeTypes() {
+		SortedSet<Integer> result = new TreeSet<>();
+		for (int i = 1; i < nColors+1; i++) {
+			result.add(i);
+		}
+		return result;
+	}
+
+	@Override
+	public List<SortedSet<Integer>> validEdges() {
+		List<SortedSet<Integer>> result = new ArrayList<>();
+		for(int i:edgeTypes()) {
+			SortedSet<Integer>edge = new TreeSet<>();
+			edge.add(i);
+			result.add(edge);
+		}
+		return result;
+	}
+	
+	@Override
+	public boolean isComplete() {
+		return size == (order * (order - 1)) * nColors;
+	}
+	
+	public static void main(String[]args) {
+		CoGraphlet cg = new CoGraphlet("123456",6,true);
+		System.out.println(cg.representation());
+		System.out.println(cg.canonical());
+		cg.addNode();
+		System.out.println(cg.representation());
+		System.out.println(cg.canonical());
 	}
 
 }

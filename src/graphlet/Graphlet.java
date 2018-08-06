@@ -262,9 +262,9 @@ public class Graphlet extends AbstractGraphlet<Boolean>{
 	}
 
 	@Override
-	public SortedMap<Integer, List<Boolean>> getNeighbours(int node) {
-		SortedMap<Integer, List<Boolean>> result = new TreeMap<>();
-		List<Boolean> value = new ArrayList<>();
+	public SortedMap<Integer, SortedSet<Boolean>> getNeighbours(int node) {
+		SortedMap<Integer, SortedSet<Boolean>> result = new TreeMap<>();
+		SortedSet<Boolean> value = new TreeSet<>();
 		value.add(true);
 		for (Edge e : edges) {
 			if (e.a == node) {

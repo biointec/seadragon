@@ -47,7 +47,15 @@ public class AddEdgeNode<T extends AbstractGraphlet<U>, U extends Comparable<U>>
 
 	@Override
 	public String toString() {
-		return "AddEdgeNode [" + representation + " node=" + node + ", type=" + /*tree.getEdgeTypes().get*/(type) + "]";
+		return "AddEdgeNode [" + representation + " node=" + node + ", type=" + tree.getEdgeTypes().get(type) + "]";
+	}
+
+	public void setNode(int node) {
+		this.node = node;
+	}
+
+	public void setType(int type) {
+		this.type = type;
 	}
 
 	@Override
