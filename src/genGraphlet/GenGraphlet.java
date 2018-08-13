@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import graphlets.AbstractGraphlet;
-import graphlets.IllegalGraphActionException;
+import graphs.IllegalGraphActionException;
 
 public class GenGraphlet extends AbstractGraphlet<Byte> {
 
@@ -60,10 +60,13 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 		// return result.substring(0,result.length()-1);
 	}
 
-	public static void main(String[]args) {
-		GenGraphlet gg = new GenGraphlet("----+--0++-0+++00000",true);
+	public static void main(String[]args) throws IllegalGraphActionException {
+		GenGraphlet gg = new GenGraphlet("",true);
+		gg.addNode();
+		gg.addEdge(0, 1, (byte)1);
 		System.out.println(gg);
 		System.out.println(gg.getOrbits());
+		System.out.println(gg.getSymmetry());
 		System.out.println(gg.cosetreps());
 	}
 	

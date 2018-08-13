@@ -12,10 +12,11 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import diGraphlet.DiGraphlet;
-import graphlet.Graphlet;
+import graph.Graphlet;
 import graphletgeneration.Permutator;
+import graphs.AbstractGraph;
 
-public abstract class AbstractGraphlet<T extends Comparable<T>> extends Graph<T>
+public abstract class AbstractGraphlet<T extends Comparable<T>> extends AbstractGraph<T>
 		implements Serializable, Comparable<AbstractGraphlet<T>> {
 
 	/**
@@ -50,20 +51,25 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Graph<T>
 	public abstract StringBuilder toPS();
 
 	public int getSymmetry() {
+		if (!ready) {
+			permute();
+		}
 		return automorphisms.size();
 	}
 
 	public String canonical() {
 		if (!ready) {
-			// System.out.println("before: " + representation());
 			permute();
-			// System.out.println("after: " + canonical);
 		}
 		return canonical;
 	}
 
 	public String name() {
 		return (isOrbitRep ? "OrbitRep" : "Graphlet");
+	}
+	
+	public boolean isOrbitRep() {
+		return isOrbitRep;
 	}
 
 	@Override
@@ -188,14 +194,6 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Graph<T>
 		if (!ready)
 			permute();
 		return orbits.get(node);
-		// for (SortedSet<Integer> s : orbits) {
-		// if (s.contains(node)) {
-		// SortedSet<Integer> result = new TreeSet<>();
-		// result.addAll(s);
-		// return result;
-		// }
-		// }
-		// return null;
 	}
 
 	protected StringBuilder drawNodes() {

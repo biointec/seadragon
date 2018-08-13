@@ -15,6 +15,10 @@ public abstract class TreeNode<T extends AbstractGraphlet<U>, U extends Comparab
 
 	protected String representation;
 
+	public String getRepresentation() {
+		return representation;
+	}
+
 	protected TreeNode<T, U> parent;
 	protected GraphletTree<T, U> tree;
 	protected List<TreeNode<T, U>> temporaryParents;

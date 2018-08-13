@@ -44,9 +44,4 @@ public class CoGraphletFactory extends GraphletFactory<CoGraphlet> {
 		return new CoGraphlet(matrix,nColors,isOrbitRep);
 	}
 
-	@Override
-	public String name() {
-		return nColors + "-Co"+super.name();
-	}
-
 }

@@ -142,20 +142,18 @@ public class ConditionNode<T extends AbstractGraphlet<U>, U extends Comparable<U
 		return second;
 	}
 
-	// /**
-	// * Returns this ConditionNode's child TreeNode.
-	// *
-	// * @return this ConditionNode's child TreeNode.
-	// */
-	// public TreeNode<T,U> getChild() {
-	// return child;
-	// }
-	//
-	
-	
-	 void setChild(TreeNode child) {
-	 this.child = child;
-	 }
+	/**
+	 * Returns this ConditionNode's child TreeNode.
+	 *
+	 * @return this ConditionNode's child TreeNode.
+	 */
+	public TreeNode<T, U> getChild() {
+		return child;
+	}
+
+	void setChild(TreeNode child) {
+		this.child = child;
+	}
 
 	@Override
 	public void print(String spaces) {

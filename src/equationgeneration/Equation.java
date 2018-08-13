@@ -48,7 +48,7 @@ public class Equation<E extends AbstractGraphlet<V>, V extends Comparable<V>> im
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Equation other = (Equation) obj;
+		Equation<E,V> other = (Equation<E,V>) obj;
 		if (commons == null) {
 			if (other.commons != null)
 				return false;

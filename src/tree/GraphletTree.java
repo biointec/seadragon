@@ -17,15 +17,26 @@ public class GraphletTree<T extends AbstractGraphlet<U>, U extends Comparable<U>
 	private SortedSet<U> edgeTypes;
 	private AddNodeNode<T,U> root;
 	private List<TreeNode<T,U>> leaves;
+	private int order;
+	private boolean isOrbitRep;
 	
-	public GraphletTree(T root) {
+	public GraphletTree(T root, int order) {
 		edgeTypes = root.edgeTypes();
 		leaves = new ArrayList<>();
 		System.out.println(root);
-		this.root=new AddNodeNode<T,U>(null,root.representation());
+		this.root=new AddNodeNode<T,U>(null,root);
 		this.root.tree=this;
+		this.order=order;
+		isOrbitRep = root.isOrbitRep();
 	}
 	
+	public boolean isOrbitRep() {
+		return isOrbitRep;
+	}
+	
+	public int getOrder() {
+		return order;
+	}
 	void addLeaf(TreeNode<T,U>leaf) {
 		leaves.add(leaf);
 	}

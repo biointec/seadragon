@@ -14,7 +14,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import graphlets.AbstractGraphlet;
-import graphlets.IllegalGraphActionException;
+import graphs.IllegalGraphActionException;
 
 public class DiGraphlet extends AbstractGraphlet<Boolean> {
 
@@ -370,7 +370,7 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 	}
 	
 	public boolean isComplete() {
-		return size == order*(order-1);
+		return size == order * (order - 1);
 	}
 
 }

@@ -31,7 +31,15 @@ public class DiGraphletFactory extends GraphletFactory<DiGraphlet> {
 		}
 		matrix[i] = true;
 		++count;
-		return new DiGraphlet(matrix, isOrbitRep);
+		return new DiGraphlet(matrixToString(), isOrbitRep);
+	}
+	
+	private String matrixToString() {
+		String result = "";
+		for(boolean b:matrix) {
+			result+=b?1:0;
+		}
+		return result;
 	}
 
 	

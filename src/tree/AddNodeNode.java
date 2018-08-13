@@ -16,32 +16,47 @@ public class AddNodeNode<T extends AbstractGraphlet<U>, U extends Comparable<U>>
 	private SortedMap<Integer, SortedMap<U, TreeNode<T, U>>> children;
 	private Map <TreeNode<T,U>, U> reverseChildren1;
 	private Map<TreeNode<T,U>,Integer> reverseChildren2;
+	private int symmetryFactor;
 	
-	public AddNodeNode(TreeNode<T,U> parent,String representation) {
-		super(parent, representation);
+	public int getSymmetryFactor() {
+		return symmetryFactor;
+	}
+
+	void setSymmetryFactor(int symmetryFactor) {
+		this.symmetryFactor = symmetryFactor;
+	}
+
+	public AddNodeNode(TreeNode<T,U> parent,/*String representation*/ T graphlet) {
+		super(parent, graphlet.representation());
+		symmetryFactor = graphlet.getSymmetry();
 		children = new TreeMap<>(Comparator.nullsFirst(Comparator.naturalOrder()));
 		reverseChildren1=new HashMap<>();
 		reverseChildren2 = new HashMap<>();
 	}
 	
-	public AddNodeNode(AddEdgeNode<T,U> original) {
-		super(original.parent,original.representation);
-		children = new TreeMap<>(Comparator.nullsFirst(Comparator.naturalOrder()));
-		reverseChildren1=new HashMap<>();
-		reverseChildren2 = new HashMap<>();
-		original.parent.replaceChild(original, this);
+//	public AddNodeNode(AddEdgeNode<T,U> original) {
+//		super(original.parent,original.representation);
+//		children = new TreeMap<>(Comparator.nullsFirst(Comparator.naturalOrder()));
+//		reverseChildren1=new HashMap<>();
+//		reverseChildren2 = new HashMap<>();
+//		original.parent.replaceChild(original, this);
+//	}
+	
+//	public AddNodeNode(String representation) {
+//		this(null,representation);
+//	}
+	
+	public SortedMap<Integer, SortedMap<U, TreeNode<T, U>>> getChildrenMap(){
+		return children;
 	}
 	
-	public AddNodeNode(String representation) {
-		this(null,representation);
-	}
 	
-	public AddNodeNode(T root) {
-		super(new GraphletTree<>(root));
-		children = new TreeMap<>(Comparator.nullsFirst(Comparator.naturalOrder()));
-		reverseChildren1=new HashMap<>();
-		reverseChildren2 = new HashMap<>();
-	}
+//	public AddNodeNode(T root) {
+//		super(new GraphletTree<>(root,order));
+//		children = new TreeMap<>(Comparator.nullsFirst(Comparator.naturalOrder()));
+//		reverseChildren1=new HashMap<>();
+//		reverseChildren2 = new HashMap<>();
+//	}
 	
 	public void print(String spaces) {
 		System.out.println(this);

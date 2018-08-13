@@ -41,8 +41,12 @@ public class AddEdgeNode<T extends AbstractGraphlet<U>, U extends Comparable<U>>
 		return node;
 	}
 
-	public int getType() {
+	public int getTypeIndex() {
 		return type;
+	}
+	
+	public U getType() {
+		return tree.getEdgeTypes().get(type);
 	}
 
 	@Override
@@ -56,6 +60,10 @@ public class AddEdgeNode<T extends AbstractGraphlet<U>, U extends Comparable<U>>
 
 	public void setType(int type) {
 		this.type = type;
+	}
+	
+	public TreeNode<T,U> getChild(boolean which){
+		return children.get(which?1:0);
 	}
 
 	@Override

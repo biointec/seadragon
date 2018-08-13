@@ -14,7 +14,7 @@ import java.util.TreeSet;
 
 import diGraphlet.DiGraphlet;
 import graphlets.AbstractGraphlet;
-import graphlets.IllegalGraphActionException;
+import graphs.IllegalGraphActionException;
 
 public class EquationGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U>> {
 
