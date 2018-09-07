@@ -10,29 +10,33 @@ import graphlets.GraphletIO;
 
 public class GraphletGenerator {
 
-	public static <T extends AbstractGraphlet<?>> void generateGraphlets(int maxOrder, GraphletFactory<T> type) {
-		generateGraphlets(2,maxOrder,type);
-	}
-	
-	public static <T extends AbstractGraphlet<?>> void generateGraphlets(int minOrder, int maxOrder, GraphletFactory<T> type) {
-		for (int order = minOrder; order < maxOrder + 1; order++) {
-			// int order = 6;
-			type.setOrder(order);
-			List<AbstractGraphlet<?>> g = new ArrayList<>();
+	public static <T extends AbstractGraphlet<?>> List<T> generateGraphlets(int order,
+			AbstractGraphletFactory<T> type) {
+		// int order = 6;
+		type.setOrder(order);
+		List<T> g = new ArrayList<>();
+		if (order == 1) {
+			g.add(type.emptyGraphlet());
+		} else {
 			while (type.hasNext()) {
-				AbstractGraphlet<?> dg =  type.next();
-//				System.out.println(dg);
+				T dg = type.next();
+				// System.out.println(dg);
 				if (dg.isConnected() && dg.permute()) {
 					g.add(dg);
 				}
 			}
-			System.out.println(g);
-			GraphletIO.save(g, "dump/" + g.get(0).name() + "s-" + order + ".gpl");
-			GraphletIO.draw(g, "dump/" + g.get(0).name() + "s-" + order + ".ps");
 		}
+		return g;
+
 	}
 
-	public static void main(String[] args) {
-		generateGraphlets(3, new DiGraphletFactory(true));
+	public static <T extends AbstractGraphlet<?>> List<List<T>> generateGraphlets(int minOrder, int maxOrder,
+			AbstractGraphletFactory<T> type) {
+		List<List<T>> result = new ArrayList<>();
+		for (int order = minOrder; order < maxOrder + 1; order++) {
+			result.add(generateGraphlets(order, type));
+		}
+		return result;
 	}
+
 }

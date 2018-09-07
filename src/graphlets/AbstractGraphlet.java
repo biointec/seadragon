@@ -32,6 +32,14 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 
 	protected Set<String> representations;
 	protected List<List<Integer>> automorphisms;
+	protected List<Integer> canonicalAutomorphism;
+
+	public List<Integer> getCanonicalAutomorphism() {
+		if(canonicalAutomorphism==null) {
+			permute();
+		}
+		return canonicalAutomorphism;
+	}
 
 	protected String canonical;
 	protected List<SortedSet<Integer>> orbits;
@@ -41,8 +49,6 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 	public AbstractGraphlet(boolean isOrbitRep) {
 		this.isOrbitRep = isOrbitRep;
 	}
-
-	public abstract <U extends AbstractGraphlet<T>> U copy();
 
 	public abstract void swap(int a, int b);
 
@@ -107,12 +113,15 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 	}
 
 	public boolean permute() {
-		ready = true;
 		cosetreps = null;
+		boolean b;
 		if (isOrbitRep) {
-			return permuteExcept(0);
+			b= permuteExcept(0);
+		}else {
+			b=permuteExcept(new TreeSet<Integer>());
 		}
-		return permuteExcept(new TreeSet<Integer>());
+		ready = true;
+		return b;
 	}
 
 	public boolean permuteExcept(int i) {
@@ -132,6 +141,7 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 			orbits.get(i).add(i);
 			current.add(i);
 		}
+		canonicalAutomorphism = new ArrayList<>(current);
 		automorphisms.add(new ArrayList<>(current));
 		representations = new TreeSet<>();
 		representations.add(canonical);
@@ -157,9 +167,10 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 					}
 					automorphisms.add(new ArrayList<>(current));
 				}
-				if (canonical.compareTo( s) > 0) {
+				if (new CanonicalComparator().compare(canonical, s) > 0) {
 					canonical = s;
 					result = false;
+					canonicalAutomorphism = new ArrayList<>(current);
 				}
 				index = p.next();
 			}
@@ -176,16 +187,34 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 		return result;
 	}
 
-	public Set<List<Integer>> getOrbitOf(List<Integer> nodes) {
+	public Set<Set<Integer>> getOrbitOf(Set<Integer> nodes) {
 		if (!ready)
 			permute();
-		Set<List<Integer>> result = new HashSet<>();
+		Set<Set<Integer>> result = new HashSet<>();
 		for (List<Integer> auto : automorphisms) {
-			List<Integer> orbit = new ArrayList<>();
+			Set<Integer> orbit = new TreeSet<>();
 			for (int i : nodes) {
 				orbit.add(auto.get(i));
 			}
 			result.add(orbit);
+		}
+		return result;
+	}
+	
+	public Set<List<Set<Integer>>> getOrbitOf(List<Set<Integer>> nodes) {
+		if (!ready)
+			permute();
+		Set<List<Set<Integer>>> result = new HashSet<>();
+		for (List<Integer> auto : automorphisms) {
+			List<Set<Integer>> sub = new ArrayList<>();
+			for(Set<Integer> set:nodes) {
+				Set<Integer> orbit = new TreeSet<>();
+				for (int i : set) {
+					orbit.add(auto.get(i));
+				}
+				sub.add(orbit);
+			}
+			result.add(sub);
 		}
 		return result;
 	}
@@ -249,7 +278,7 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 			permute();
 		if (g.canonical == null)
 			g.permute();
-		return canonical.compareTo(g.canonical);
+		return new CanonicalComparator().compare(canonical, g.canonical);
 	}
 
 	public List<SortedSet<Integer>> cosetreps() {

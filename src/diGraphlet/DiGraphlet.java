@@ -1,11 +1,9 @@
 package diGraphlet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedMap;
@@ -41,18 +39,6 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 		}
 	}
 
-//	public DiGraphlet(List<Boolean> rep, boolean isOrbitRep) {
-//		this(repToMatrix(rep), isOrbitRep);
-//	}
-
-//	private static boolean[] repToMatrix(List<Boolean> s) {
-//		boolean[] result = new boolean[s.length()];
-//		for (int i = 0; i < s.length(); i++) {
-//			result[i] = (s.charAt(i) == '1');
-//		}
-//		return result;
-//	}
-
 	public DiGraphlet copy() {
 		DiGraphlet result = new DiGraphlet(representation(), isOrbitRep);
 		result.representations = representations;
@@ -72,18 +58,10 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 			if (l.contains(aa)) {
 				if (!l.contains(bb)) {
 					l.remove(aa);
-					// int i = l.size() - 1;
-					// while (i >= 0 && l.get(i) > bb) {
-					// i--;
-					// }
 					l.add(bb);
 				}
 			} else if (l.contains(bb)) {
 				l.remove(bb);
-				// int i = 0;
-				// while (i < l.size() && l.get(i) < aa) {
-				// i++;
-				// }
 				l.add(aa);
 			}
 		}
@@ -159,7 +137,6 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 		for (int i = 0; i < order; i++) {
 			for (int j : arcs.get(i)) {
 				builder.append(drawEdge(i, j));
-				// double angle = 0;
 				double angle = 180. / order * (j - i) + 360. / order * i + (i < j ? 180 : 0);
 				builder.append(x(i, 0) + " " + y(i, 0) + " translate\n");
 				builder.append((int) Math.round(angle) + " rotate\n");
@@ -181,7 +158,6 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 		builder.append(drawOrbits());
 		builder.append("showpage\n");
 		return builder;
-		// return null;
 	}
 
 	@Override
@@ -192,17 +168,14 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 			for (int j : arcs.get(i)) {
 				while (index < j) {
 					if (index != i)
-//						result.add(false);
 						result+=0;
 					index++;
 				}
-//				result.add(true);
 				result+=1;
 				index++;
 			}
 			while (index < order) {
 				if (index != i)
-//					result.add(false);
 					result+=0;
 				index++;
 			}
@@ -218,38 +191,11 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 		arcs.add(new TreeSet<>());
 	}
 
-	@Override
-	public void addEdge(int i, int j, Boolean status) throws IllegalGraphActionException {
-		ready = false;
-		checkNode(i);
-		checkNode(j);
-		if (i == j) {
-			throw new IllegalGraphActionException("No self-loops allowed");
-		} else if (status ? arcs.get(i).contains(j) : arcs.get(j).contains(i)) {
-			throw new IllegalGraphActionException("No double edges allowed between nodes " + i + " and " + j);
-		} else if (status) {
-			arcs.get(i).add(j);
-		} else {
-			arcs.get(j).add(i);
-		}
-		size++;
 
-	}
-
-	// @Override
-	// public boolean areConnected(int a, int b) {
-	// return arcs.get(a).contains(b);
-	// }
-	//
-	// @Override
-	// public Set<Integer> getNeighbours(int node) {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
 
 	@Override
-	public SortedSet<Boolean> edgeTypes() {
-		SortedSet<Boolean> result = new TreeSet<>();
+	public List<Boolean> edgeTypes() {
+		List<Boolean> result = new ArrayList<>();
 		result.add(false);
 		result.add(true);
 		return result;
@@ -358,6 +304,24 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 		return result;
 	}
 
+	
+	@Override
+	public void addEdge(int i, int j, Boolean status) throws IllegalGraphActionException {
+		ready = false;
+		checkNode(i);
+		checkNode(j);
+		if (i == j) {
+			throw new IllegalGraphActionException("No self-loops allowed");
+		} else if (status ? arcs.get(i).contains(j) : arcs.get(j).contains(i)) {
+			throw new IllegalGraphActionException("No double edges allowed between nodes " + i + " and " + j);
+		} else if (status) {
+			arcs.get(i).add(j);
+		} else {
+			arcs.get(j).add(i);
+		}
+		size++;
+
+	}
 
 	@Override
 	public void removeEdge(int i, int j, Boolean type) throws IllegalGraphActionException {
@@ -365,12 +329,19 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 		checkNode(j);
 		if(!getEdges(i,j).contains(type)) {
 			throw new IllegalGraphActionException("No edge present from "+(type?i:j) +" to "+(type?j:i));
+		}else if(type){
+			assert(arcs.get(i).remove(j)); 
+		}else {
+			assert(arcs.get(j).remove(i));
 		}
-		
+		size--;
 	}
 	
 	public boolean isComplete() {
 		return size == order * (order - 1);
 	}
-
+	@Override
+	public SortedSet<Integer> getInvertedNeighbours(int node, Boolean condition) {
+		return getNeighbours(node,!condition);
+	}
 }

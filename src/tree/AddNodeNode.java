@@ -17,6 +17,7 @@ public class AddNodeNode<T extends AbstractGraphlet<U>, U extends Comparable<U>>
 	private Map <TreeNode<T,U>, U> reverseChildren1;
 	private Map<TreeNode<T,U>,Integer> reverseChildren2;
 	private int symmetryFactor;
+	private List<Integer> canonicalAutomorphism;
 	
 	public int getSymmetryFactor() {
 		return symmetryFactor;
@@ -27,25 +28,19 @@ public class AddNodeNode<T extends AbstractGraphlet<U>, U extends Comparable<U>>
 	}
 
 	public AddNodeNode(TreeNode<T,U> parent,/*String representation*/ T graphlet) {
-		super(parent, graphlet.representation());
+		super(parent, graphlet.canonical());
 		symmetryFactor = graphlet.getSymmetry();
 		children = new TreeMap<>(Comparator.nullsFirst(Comparator.naturalOrder()));
 		reverseChildren1=new HashMap<>();
 		reverseChildren2 = new HashMap<>();
+		canonicalAutomorphism = graphlet.getCanonicalAutomorphism();
 	}
 	
-//	public AddNodeNode(AddEdgeNode<T,U> original) {
-//		super(original.parent,original.representation);
-//		children = new TreeMap<>(Comparator.nullsFirst(Comparator.naturalOrder()));
-//		reverseChildren1=new HashMap<>();
-//		reverseChildren2 = new HashMap<>();
-//		original.parent.replaceChild(original, this);
-//	}
 	
-//	public AddNodeNode(String representation) {
-//		this(null,representation);
-//	}
-	
+	public List<Integer> getCanonicalAutomorphism() {
+		return canonicalAutomorphism;
+	}
+
 	public SortedMap<Integer, SortedMap<U, TreeNode<T, U>>> getChildrenMap(){
 		return children;
 	}

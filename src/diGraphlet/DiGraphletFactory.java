@@ -1,46 +1,34 @@
 package diGraphlet;
 
-import graphletgeneration.GraphletFactory;
+import java.util.List;
 
-public class DiGraphletFactory extends GraphletFactory<DiGraphlet> {
+import graphletgeneration.AbstractGraphletFactory;
+
+public class DiGraphletFactory extends AbstractGraphletFactory<DiGraphlet> {
 
 	public DiGraphletFactory(boolean isOrbitRep) {
 		super(isOrbitRep);
 	}
 
-	private boolean[] matrix;
-	private int count;
+	private static final char[] validCharacters = {'1'};
 
 	public void setOrder(int order) {
 		super.setOrder(order);
-		matrix = new boolean[order * (order - 1)];
-		count = 0;
 	}
 
 	@Override
-	public boolean hasNext() {
-		return count != Math.pow(2, order * (order - 1)) - 1;
+	public DiGraphlet toGraphlet(String s) {
+		return new DiGraphlet(s, isOrbitRep);
 	}
 
 	@Override
-	public DiGraphlet next() {
-		int i = matrix.length - 1;
-		while (matrix[i]) {
-			matrix[i] = false;
-			--i;
-		}
-		matrix[i] = true;
-		++count;
-		return new DiGraphlet(matrixToString(), isOrbitRep);
-	}
-	
-	private String matrixToString() {
-		String result = "";
-		for(boolean b:matrix) {
-			result+=b?1:0;
-		}
-		return result;
+	protected char[] validCharacters() {
+		return validCharacters;
 	}
 
-	
+	@Override
+	protected int representationLength() {
+		return order*(order-1);
+	}
+
 }

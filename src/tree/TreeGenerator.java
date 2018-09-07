@@ -8,8 +8,12 @@ import java.util.Stack;
 import java.util.TreeSet;
 
 import coGraphlet.CoGraphlet;
+import diGraphlet.DiGraphletFactory;
 import genGraphlet.GenGraphlet;
+import genGraphlet.GenGraphletFactory;
 import graph.Graphlet;
+import graphletgeneration.AbstractGraphletFactory;
+import graph.GraphletFactory;
 import graphlets.AbstractGraphlet;
 import graphs.IllegalGraphActionException;
 
@@ -39,6 +43,7 @@ public class TreeGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U
 	private int order;
 	private SortedSet<String> usedGraphlets;
 	private Set<TreeNode<T, U>> toPrune;
+	private AbstractGraphletFactory<T> factory;
 
 	/**
 	 * Creates a new TreeGenerator with the
@@ -48,7 +53,9 @@ public class TreeGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U
 	 * @param order
 	 *            The maximal order of graphlets within the tree.
 	 */
-	public TreeGenerator(T root, int order) {
+	public TreeGenerator(AbstractGraphletFactory<T> f, int order) {
+		factory = f;
+		T root = f.emptyGraphlet();
 		tree = new GraphletTree<T, U>(root, order);
 		AddNodeNode<T, U> rootNode = tree.getRoot();
 		currentNodes = new Stack<>();
@@ -73,6 +80,10 @@ public class TreeGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U
 			tn.prune();
 		}
 		return tree;
+	}
+	
+	public static void main(String[]args) {
+		new TreeGenerator<>(new GenGraphletFactory(true),3).generateTree().print();
 	}
 
 	/**
@@ -100,17 +111,27 @@ public class TreeGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U
 	 */
 	private void expandNode() {
 		try {
-			T graphlet = graphlets.peek().copy();
+			T graphlet = factory.copy(graphlets.peek());
 			if (!usedGraphlets.add(graphlet.canonical())) {
 				// This graphlet has been found already, prune the current node.
 				toPrune.add(currentNodes.peek());
+				return;
+			}
+			if (graphlet.getOrder() == order + 1) {
+				if (graphlet.isComplete()) {
+					breakSymmetry();
+				} else {
+					toPrune.add(currentNodes.peek());
+				}
 				return;
 			}
 			if (graphlet.getOrder() == order) {
 				// The maximum order is reached, no further nodes must be added.
 				breakSymmetry();
 				tree.addLeaf(currentNodes.peek());
-				return;
+				if (!graphlet.isComplete()) {
+					return;
+				}
 			}
 			// Add a new node to the graphlet connected to the first node of every orbit,
 			// with every possible edge type.
@@ -188,7 +209,7 @@ public class TreeGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U
 			try {
 				// try to add the current edge
 				// TODO: use the list of allowed edge combinations instead?
-				graphlet.copy().addEdge( i / edgeTypes.size(),graphlet.getOrder() - 1,
+				factory.copy(graphlet).addEdge(i / edgeTypes.size(), graphlet.getOrder() - 1,
 						edgeTypes.get(i % edgeTypes.size()));
 				// if we get here, the next edge could be present, so we need to make sure it
 				// isn't
@@ -251,16 +272,16 @@ public class TreeGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U
 	 * appropriate children when the edge is absent or present.
 	 */
 	private void checkEdge() {
-		
+
 		int node = currentEdges.peek().getNode() + (currentEdges.peek().getTypeIndex() + 1) / edgeTypes.size();
 		int edge = (currentEdges.peek().getTypeIndex() + 1) % edgeTypes.size();
-		
+
 		if (node < graphlets.peek().getOrder() - 1) {
-			
+
 			// There is still an unchecked edge left
 			try {
 				// Current edge is added, check the next edge
-				T graphlet = graphlets.peek().copy();
+				T graphlet = factory.copy(graphlets.peek());
 				graphlet.addEdge(currentEdges.peek().getNode(), graphlet.getOrder() - 1,
 						edgeTypes.get(currentEdges.peek().getTypeIndex()));
 				graphlets.push(graphlet);
@@ -288,7 +309,7 @@ public class TreeGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U
 			try {
 
 				// Current edge is added, add a new node
-				T graphlet = graphlets.peek().copy();
+				T graphlet = factory.copy(graphlets.peek());
 				graphlet.addEdge(graphlet.getOrder() - 2, graphlet.getOrder() - 1, edgeTypes.get(edgeTypes.size() - 1));
 				graphlets.push(graphlet);
 				AddNodeNode<T, U> child = new AddNodeNode<>(currentEdges.peek(), graphlet);
@@ -306,8 +327,8 @@ public class TreeGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U
 			} catch (IllegalGraphActionException e) {
 				// Current edge can't exist and there is no next edge, replace the current
 				// AddEdgeNode by an AddNodeNode
-				
-				AddNodeNode <T,U> replacement = new AddNodeNode<T, U>(currentEdges.peek().parent,graphlets.peek());
+
+				AddNodeNode<T, U> replacement = new AddNodeNode<T, U>(currentEdges.peek().parent, graphlets.peek());
 				currentEdges.peek().replace(replacement);
 				currentNodes.push(replacement);
 				expandNode();

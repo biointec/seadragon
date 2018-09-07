@@ -13,170 +13,160 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import diGraphlet.DiGraphlet;
+import diGraphlet.DiGraphletFactory;
+import graph.Graphlet;
+import graphletgeneration.AbstractGraphletFactory;
+import graphletgeneration.GraphletGenerator;
 import graphlets.AbstractGraphlet;
+import graphlets.CanonicalComparator;
 import graphs.IllegalGraphActionException;
+import tree.GraphletTree;
+import tree.TreeGenerator;
+import treewalker.SingleGraphletWalker;
+import treewalker.TreeWalker;
 
 public class EquationGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U>> {
 
 	List<T> start;
 	SortedSet<Equation<T, U>> result;
+	List<U> edges;
+	List<SortedSet<Integer>> edgeCombinations;
+	AbstractGraphletFactory<T> factory;
+	GraphletTree<T, U> tree;
 
-	public EquationGenerator() {
-		// TODO Auto-generated constructor stub
+	public EquationGenerator(List<T> start) {
+		this.start = start;
+		edges = new ArrayList<>(start.get(0).edgeTypes());
+		edgeCombinations = new ArrayList<>();
+		for (SortedSet<U> s : start.get(0).validEdges()) {
+			SortedSet<Integer> t = new TreeSet<>();
+			for (U u : s) {
+				t.add(edges.indexOf(u));
+			}
+			edgeCombinations.add(t);
+		}
 	}
 
-	public SortedSet<Equation<T, U>> generateEquations(int order) {
+	public EquationGenerator(AbstractGraphletFactory<T> type, int order) {
+		this(GraphletGenerator.generateGraphlets(order - 1, type));
+		factory = type;
+		tree = new TreeGenerator<>(type, order - 1).generateTree();
+	}
+
+	public SortedSet<Equation<T, U>> generateEquations() {
 		result = new TreeSet<>();
 		for (T graphlet : start) {
-			List<Set<Map<U, SortedSet<Integer>>>> rhses = rhsTerms(graphlet);
-			for (Set<Map<U, SortedSet<Integer>>> rhs : rhses) {
-				SortedSet<T> lhsTerms = lhsTerms(graphlet, rhs);
-				SortedMap<T, Integer> lhs = new TreeMap<>();
-				for (T term : lhsTerms) {
-					lhs.put(term, lhsFactor(term, rhs.iterator().next()));
-				}
+			Set<Set<List<Set<Integer>>>> rhses = rhsTerms(graphlet);
+			for (Set<List<Set<Integer>>> rhs : rhses) {
 				int minus = minus(graphlet, rhs.iterator().next());
-				// System.out.println(lhs);
-				// System.out.println(graphlet);
-				// System.out.println(rhs);
-				// System.out.println(minus);
-				Equation<T, U> equation = new Equation<T, U>(lhs, graphlet, rhs, minus);
-				// System.out.println(equation);
-				// System.out.println();
-				result.add(equation);
+				SortedMap<String, Integer> lhs = lhsTerms(graphlet, rhs, minus);
+				if (lhs!=null) {
+					Equation<T, U> equation = new Equation<T, U>(lhs, graphlet, rhs, minus);
+					result.add(equation);
+				}
 			}
 		}
 		return result;
 	}
 
-	public int lhsFactor(T newGraphlet, Map<U, SortedSet<Integer>> edges) {
-		int factor = newGraphlet.getOrbitOf(newGraphlet.getOrder() - 1).size();
-		List<Integer> neighbours = new ArrayList<>();
-		for (U type : edges.keySet()) {
-			for (int i : edges.get(type)) {
-				neighbours.add(i);
-			}
-		}
-		factor *= newGraphlet.getOrbitOf(neighbours).size();
-		return factor;
-	}
 
-	public SortedSet<T> lhsTerms(T graphlet, Set<Map<U, SortedSet<Integer>>> edges) {
-		Map<U, SortedSet<Integer>> rhsTerm = edges.iterator().next();
-		T copy = graphlet.copy();
-		copy.addNode();
-		for (U key : rhsTerm.keySet()) {
-			for (int i : rhsTerm.get(key)) {
+	private SortedMap<String, Integer> lhsTerms(T graphlet, Set<List<Set<Integer>>> edges, int minus) {
+		SortedMap<String, Integer> lhs = new TreeMap<>(new CanonicalComparator());
+		T oldgraphlet = factory.canonicalVersion(graphlet);
+		assert (graphlet.representation().equals(oldgraphlet.representation()));
+		graphlet.addNode();
+		List<Set<Integer>> rhsTerm = edges.iterator().next();
+		for (int i = 0; i < this.edges.size(); i++) {
+			for (int j : rhsTerm.get(i)) {
 				try {
-					copy.addEdge(graphlet.getOrder(), i, key);
+					graphlet.addEdge(j, graphlet.getOrder() - 1, this.edges.get(i));
 				} catch (IllegalGraphActionException e) {
 					e.printStackTrace();
 				}
 			}
 		}
-		SortedSet<T> lhs = new TreeSet<>();
-		List<SortedSet<U>> edgeTypes = copy.validEdges();
-		int[] counter = new int[graphlet.getOrder() + 1];
-		while (counter[0] == 0) {
+		if (graphlet.isComplete()) {
 			try {
-				T newCopy = copy.copy();
-				for (int j = 0; j < graphlet.getOrder(); j++) {
-					if (counter[j + 1] != 0) {
-						SortedSet<U> edgelist = edgeTypes.get(counter[j + 1] - 1);
-						for (U edge : edgelist) {
-							newCopy.addEdge(graphlet.getOrder(), j, edge);
+				graphlet.removeNode(graphlet.getOrder()-1);
+			} catch (IllegalGraphActionException e) {
+				e.printStackTrace();
+			}
+			return null;
+		} else {
+			int[] counter = new int[graphlet.getOrder()];
+			while (counter[0] == 0) {
+				try {
+					T copy = factory.copy(graphlet);
+					for (int j = 1; j < copy.getOrder(); j++) {
+						if (counter[j] != 0) {
+							SortedSet<Integer> edgelist = edgeCombinations.get(counter[j] - 1);
+							for (int edge : edgelist) {
+								copy.addEdge(j - 1, copy.getOrder() - 1, this.edges.get(edge));
+							}
 						}
 					}
+					copy = factory.canonicalVersion(copy);
+					SortedMap<String, Long> run = new SingleGraphletWalker<>(tree, copy, oldgraphlet, edges, minus)
+							.run(0);
+					Long long1 = run.get("");
+					assert (long1 != null);
+					lhs.put(copy.canonical(), Math.toIntExact(long1));
+				} catch (IllegalGraphActionException e) {
 				}
-				newCopy.permute();
-				lhs.add(newCopy);
+				int i = graphlet.getOrder() - 1;
+				while (counter[i] == this.edgeCombinations.size()) {
+					counter[i--] = 0;
+				}
+				counter[i]++;
+			}
+			try {
+				graphlet.removeNode(graphlet.getOrder() - 1);
+				assert (graphlet.representation().equals(oldgraphlet.representation()));
 			} catch (IllegalGraphActionException e) {
 			}
-
-			int i = graphlet.getOrder();
-			while (counter[i] == edgeTypes.size()) {
-				counter[i--] = 0;
-			}
-			counter[i]++;
+			return lhs;
 		}
-		return lhs;
-
 	}
 
-	public int minus(T graphlet, Map<U, SortedSet<Integer>> edges) {
+	private int minus(T graphlet, List<Set<Integer>> edges) {
 		SortedSet<Integer> result = new TreeSet<>();
 		for (int j = 0; j < graphlet.getOrder(); j++) {
 			result.add(j);
 		}
-		for (U type : edges.keySet()) {
-			for (int node : edges.get(type)) {
-				result.retainAll(graphlet.getNeighbours(node, type));
+		for (int i = 0; i < edges.size(); i++) {
+			for (int node : edges.get(i)) {
+				result.retainAll(graphlet.getNeighbours(node, this.edges.get(i)));
 			}
 		}
 		return result.size();
 	}
 
-	public List<Set<Map<U, SortedSet<Integer>>>> rhsTerms(T graphlet) {
-
-		List<SortedSet<U>> edges = graphlet.validEdges();
-		int[] counter = new int[graphlet.getOrder() + 1];
-		counter[graphlet.getOrder()] = 1;
-		List<Set<Map<U, SortedSet<Integer>>>> equations = new ArrayList<>();
-		while (counter[0] == 0) {
-			List<Integer> orbitcheck = new ArrayList<>();
-			List<Integer> edgetype = new ArrayList<>();
-			for (int j = 0; j < graphlet.getOrder(); j++) {
-				if (counter[j + 1] != 0) {
-					orbitcheck.add(j);
-					edgetype.add(counter[j + 1] - 1);
-				}
+	private Set<Set<List<Set<Integer>>>> rhsTerms(T graphlet) {
+		int[] counter = new int[graphlet.getOrder()];
+		int ticktock = 1;
+		counter[counter.length - 1] = 1;
+		Set<Set<List<Set<Integer>>>> rhses = new HashSet<>();
+		while (ticktock < Math.pow(edgeCombinations.size() + 1, graphlet.getOrder()) - 1) {
+			ticktock++;
+			List<Set<Integer>> orbitcheck = new ArrayList<>();
+			for (int j = 0; j < edges.size(); j++) {
+				orbitcheck.add(new TreeSet<>());
 			}
-			Set<List<Integer>> orbit = graphlet.getOrbitOf(orbitcheck);
-			Set<Map<U, SortedSet<Integer>>> rhs = new HashSet<>();
-			for (List<Integer> swap : orbit) {
-				Map<U, SortedSet<Integer>> commons = new TreeMap<>();
-				for (U condition : graphlet.edgeTypes()) {
-					commons.put(condition, new TreeSet<>());
-				}
-				for (int i = 0; i < orbitcheck.size(); i++) {
-					for (U thingy : edges.get(edgetype.get(i))) {
-						commons.get(thingy).add(swap.get(i));
+			for (int j = 0; j < counter.length; j++) {
+				if (counter[j] != 0) {
+					for (int k : edgeCombinations.get(counter[j] - 1)) {
+						orbitcheck.get(k).add(j);
 					}
 				}
-				rhs.add(commons);
 			}
-			equations.add(rhs);
-			int i = graphlet.getOrder();
-			while (counter[i] == edges.size()) {
+			Set<List<Set<Integer>>> rhs = graphlet.getOrbitOf(orbitcheck);
+			rhses.add(rhs);
+			int i = counter.length - 1;
+			while (counter[i] == edgeCombinations.size()) {
 				counter[i--] = 0;
 			}
 			counter[i]++;
 		}
-		return equations;
+		return rhses;
 	}
-
-	public static void main(String[] args) throws IllegalGraphActionException {
-		EquationGenerator<DiGraphlet, Boolean> eg = new EquationGenerator<>();
-		eg.start = new ArrayList<>();
-		DiGraphlet dg = new DiGraphlet("11", true);
-		dg.permute();
-		eg.start.add(dg);
-		dg = new DiGraphlet("10", true);
-		dg.permute();
-		eg.start.add(dg);
-		dg = new DiGraphlet("01", true);
-		dg.permute();
-		eg.start.add(dg);
-		for (Equation<DiGraphlet, Boolean> e : eg.generateEquations(3)) {
-			System.out.println(e);
-		}
-		// List<Set<Map<Boolean, SortedSet<Integer>>>> rhs = eg.rhsTerms(dg);
-		// System.out.println(rhs);
-		// SortedSet<DiGraphlet>lhs = eg.lhsTerms(dg, rhs.get(0));
-		// for(DiGraphlet d:lhs) {
-		// System.out.println(eg.lhsFactor(d,rhs.get(0).iterator().next()));
-		// }
-
-	}
-
 }

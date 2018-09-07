@@ -159,12 +159,6 @@ public class CoGraphlet extends AbstractGraphlet<Integer> {
 		return s;
 	}
 
-	@Override
-	public CoGraphlet copy() {
-		
-		return new CoGraphlet(representation(), nColors, isOrbitRep);
-
-	}
 
 	@Override
 	public void addNode() {
@@ -285,8 +279,8 @@ public class CoGraphlet extends AbstractGraphlet<Integer> {
 	}
 
 	@Override
-	public SortedSet<Integer> edgeTypes() {
-		SortedSet<Integer> result = new TreeSet<>();
+	public List<Integer> edgeTypes() {
+		List<Integer> result = new ArrayList<>();
 		for (int i = 1; i < nColors+1; i++) {
 			result.add(i);
 		}
@@ -316,6 +310,11 @@ public class CoGraphlet extends AbstractGraphlet<Integer> {
 		cg.addNode();
 		System.out.println(cg.representation());
 		System.out.println(cg.canonical());
+	}
+
+	@Override
+	public SortedSet<Integer> getInvertedNeighbours(int node, Integer condition) {
+		return getNeighbours(node,condition);
 	}
 
 }

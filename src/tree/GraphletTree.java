@@ -14,15 +14,22 @@ public class GraphletTree<T extends AbstractGraphlet<U>, U extends Comparable<U>
 	 * 
 	 */
 	private static final long serialVersionUID = 971133459606523849L;
-	private SortedSet<U> edgeTypes;
+	private List<U> edgeTypes;
 	private AddNodeNode<T,U> root;
-	private List<TreeNode<T,U>> leaves;
+	private List<AddNodeNode<T,U>> leaves;
+	private List<String> leafGraphlets;
+	
+	public List<String> getLeafGraphlets() {
+		return leafGraphlets;
+	}
+
 	private int order;
 	private boolean isOrbitRep;
 	
 	public GraphletTree(T root, int order) {
 		edgeTypes = root.edgeTypes();
 		leaves = new ArrayList<>();
+		leafGraphlets = new ArrayList<>();
 		System.out.println(root);
 		this.root=new AddNodeNode<T,U>(null,root);
 		this.root.tree=this;
@@ -37,13 +44,15 @@ public class GraphletTree<T extends AbstractGraphlet<U>, U extends Comparable<U>
 	public int getOrder() {
 		return order;
 	}
-	void addLeaf(TreeNode<T,U>leaf) {
+	void addLeaf(AddNodeNode<T,U>leaf) {
 		leaves.add(leaf);
+		leafGraphlets.add(leaf.getRepresentation());
 	}
 	
-	public List<TreeNode<T,U>> getLeaves(){
+	public List<AddNodeNode<T,U>> getLeaves(){
 		return leaves;
 	}
+	
 	
 	public List<U> getEdgeTypes() {
 		ArrayList<U> result = new ArrayList<>(edgeTypes.size());

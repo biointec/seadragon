@@ -1,5 +1,6 @@
 package equationgeneration;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -7,26 +8,30 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 
 import graphlets.AbstractGraphlet;
+import graphlets.CanonicalComparator;
 
 public class Equation<E extends AbstractGraphlet<V>, V extends Comparable<V>> implements Comparable<Equation<E, V>> {
 
-	private SortedMap<E, Integer> lhs;
-	private E rhsGraphlet;
-	private Set<Map<V, SortedSet<Integer>>> commons;
+	private SortedMap<String, Integer> lhs;
+	private String rhsGraphlet;
+	private Set<List<Set<Integer>>> commons;
 	private int minus;
+	private List<V> edgeTypes;
 
-	public Equation(SortedMap<E, Integer> lhs, E rhsGraphlet, Set<Map<V, SortedSet<Integer>>> rhs, int minus) {
+	public Equation(SortedMap<String, Integer> lhs, E rhsGraphlet, Set<List<Set<Integer>>> rhs, int minus) {
 		this.lhs = lhs;
-		this.rhsGraphlet = rhsGraphlet;
+		this.rhsGraphlet = rhsGraphlet.canonical();
 		this.commons = rhs;
 		this.minus = minus;
+		edgeTypes = new ArrayList<>();
+		edgeTypes.addAll(rhsGraphlet.edgeTypes());
 	}
 
 	@Override
 	public int compareTo(Equation<E, V> arg0) {
-		E e1 = lhs.firstKey();
-		E e2 = arg0.lhs.firstKey();
-		return e1.compareTo(e2);
+		String e1 = lhs.firstKey();
+		String e2 = arg0.lhs.firstKey();
+		return new CanonicalComparator().compare(e1,e2);
 	}
 
 	@Override
@@ -69,28 +74,44 @@ public class Equation<E extends AbstractGraphlet<V>, V extends Comparable<V>> im
 		return true;
 	}
 
+	public SortedMap<String, Integer> getLhs() {
+		return lhs;
+	}
+
+	public String getRhsGraphlet() {
+		return rhsGraphlet;
+	}
+
+	public Set<List<Set<Integer>>> getCommons() {
+		return commons;
+	}
+
+	public int getMinus() {
+		return minus;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (E graphlet : lhs.keySet()) {
+		for (String graphlet : lhs.keySet()) {
 			if (lhs.get(graphlet) != 1) {
 				sb.append(lhs.get(graphlet));
 				sb.append(" * ");
 			}
-			sb.append(graphlet.representation());
+			sb.append(graphlet);
 			sb.append(" + ");
 		}
 		sb.replace(sb.length() - 2, sb.length() - 1, "=");
 		sb.append("Sum over ");
-		sb.append(rhsGraphlet.representation());
+		sb.append(rhsGraphlet);
 		sb.append(":(");
-		for (Map<V, SortedSet<Integer>> term : commons) {
+		for (List<Set<Integer>> term : commons) {
 			sb.append("c(");
-			for (V key : term.keySet()) {
-				if (!term.get(key).isEmpty()) {
-					sb.append(key);
+			for (int i=0;i<edgeTypes.size();i++) {
+				if (!term.get(i).isEmpty()) {
+					sb.append(edgeTypes.get(i));
 					sb.append(":");
-					sb.append(term.get(key));
+					sb.append(term.get(i));
 					sb.append(";");
 				}
 			}
@@ -99,9 +120,10 @@ public class Equation<E extends AbstractGraphlet<V>, V extends Comparable<V>> im
 				sb.append(" - ");
 				sb.append(minus);
 			}
+			sb.append(" + ");
 
 		}
-		sb.append(")");
+		sb.replace(sb.length() - 3, sb.length(), ")\n");
 		return sb.toString();
 	}
 

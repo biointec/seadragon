@@ -2,46 +2,38 @@ package coGraphlet;
 
 import java.util.Arrays;
 
-import graphletgeneration.GraphletFactory;
+import graphletgeneration.AbstractGraphletFactory;
 import graphlets.AbstractGraphlet;
 
-public class CoGraphletFactory extends GraphletFactory<CoGraphlet> {
+public class CoGraphletFactory extends AbstractGraphletFactory<CoGraphlet> {
 
 	private int nColors;
-	private int[] matrix;
-	private int counter;
 
 	public CoGraphletFactory(int nColors, boolean isOrbitRep) {
 		super(isOrbitRep);
 		this.nColors = nColors;
-		
 	}
 
-	
 	public void setOrder(int order) {
 		super.setOrder(order);
-		matrix = new int[(order * (order - 1)) / 2];
-		counter=0;
 	}
 
 	@Override
-	public boolean hasNext() {
-//		System.out.println(counter+" "+(Math.pow( matrix.length,order)));
-		return counter < Math.pow(nColors+1, matrix.length)-1;
+	public CoGraphlet toGraphlet(String s) {
+		return new CoGraphlet(s,nColors,isOrbitRep);
 	}
 
 	@Override
-	public CoGraphlet next() {
-		++counter;
-		int i = matrix.length - 1;
-		while (matrix[i] == nColors ) {
-//			System.out.println(i);
-			matrix[i] = 0;
-			i--;
+	protected char[] validCharacters() {
+		char[] result = new char[nColors];
+		for(int i=0;i<result.length;i++) {
+			result[i]= (char) ('1'+i);
 		}
-		matrix[i]++;
-//		System.out.println(Arrays.toString(matrix));
-		return new CoGraphlet(matrix,nColors,isOrbitRep);
+		return result;
 	}
 
+	@Override
+	protected int representationLength() {
+		return order*(order-1)/2;
+	}
 }

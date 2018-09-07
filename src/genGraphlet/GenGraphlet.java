@@ -60,21 +60,7 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 		// return result.substring(0,result.length()-1);
 	}
 
-	public static void main(String[]args) throws IllegalGraphActionException {
-		GenGraphlet gg = new GenGraphlet("",true);
-		gg.addNode();
-		gg.addEdge(0, 1, (byte)1);
-		System.out.println(gg);
-		System.out.println(gg.getOrbits());
-		System.out.println(gg.getSymmetry());
-		System.out.println(gg.cosetreps());
-	}
 	
-	@Override
-	public GenGraphlet copy() {
-		return new GenGraphlet(representation(),isOrbitRep );
-	}
-
 	@Override
 	public void swap(int a, int b) {
 		for (int i = 0; i < order; i++) {
@@ -173,10 +159,7 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 		result.add(0);
 		for (int i = 0; i < result.size(); i++) {
 			for (int j = 0; j < order; j++) {
-				if (matrix[result.get(i)][j] != '0' && !result.contains(j)) {
-					result.add(j);
-				}
-				if (matrix[j][result.get(i)] != '0' && !result.contains(j)) {
+				if ((matrix[result.get(i)][j] != 0|| matrix[j][result.get(i)] != 0)&& !result.contains(j)) {
 					result.add(j);
 				}
 			}
@@ -204,6 +187,14 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 	public void removeNode(int i) throws IllegalGraphActionException {
 		checkNode(i);
 		byte[][] oldMatrix = matrix;
+		for(int j=0;j<order;j++) {
+			if(oldMatrix[i][j]!=0) {
+				size--;
+			}
+			if(oldMatrix[j][i]!=0) {
+				size--;
+			}
+		}
 		order--;
 		matrix = new byte[order][order];
 		for (int k = 0; k < order; k++) {
@@ -343,8 +334,8 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 	}
 
 	@Override
-	public SortedSet<Byte> edgeTypes() {
-		SortedSet<Byte> result = new TreeSet<>();
+	public List<Byte> edgeTypes() {
+		List<Byte> result = new ArrayList<>();
 		result.add((byte) 1);
 		result.add((byte) -1);
 		result.add((byte) 2);
@@ -374,6 +365,11 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 	@Override
 	public boolean isComplete() {
 		return size == order * (order - 1);
+	}
+	
+	@Override
+	public SortedSet<Integer> getInvertedNeighbours(int node, Byte condition) {
+		return getNeighbours(node,(byte) -condition);
 	}
 
 }
