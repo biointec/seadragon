@@ -1,6 +1,7 @@
 package treewalker;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,9 +16,9 @@ import java.util.TreeSet;
 import equationgeneration.CommonsCounter;
 import equationgeneration.Equation;
 import equationgeneration.EquationSelecter;
+import graphlets.AbstractGraph;
 import graphlets.AbstractGraphlet;
 import graphlets.CanonicalComparator;
-import graphs.AbstractGraph;
 import tree.AddNodeNode;
 import tree.ConditionNode;
 import tree.GraphletTree;
@@ -35,7 +36,7 @@ public class EquationWalker<T extends AbstractGraphlet<U>, U extends Comparable<
 	private CommonsCounter<AbstractGraph<U>, U> commons;
 	private boolean saving = true;
 
-	public EquationWalker(GraphletTree<T, U> tree, AbstractGraph<U> graph, SortedSet<Equation<T, U>> equations) {
+	public EquationWalker(GraphletTree<T, U> tree, AbstractGraph<U> graph, Collection<Equation<T, U>> equations) {
 		super(tree, graph);
 		this.equations = EquationSelecter.selectEquations(equations);
 		analyseEquations();
@@ -61,6 +62,7 @@ public class EquationWalker<T extends AbstractGraphlet<U>, U extends Comparable<
 							Set<Integer> translatedPart = new TreeSet<>();
 							for (int i : partTerm) {
 								translatedPart.add(permutation.get(i));
+//								translatedPart.add(inversePermutation.get(i));
 							}
 							translatedTerm.add(translatedPart);
 						}
@@ -121,6 +123,7 @@ public class EquationWalker<T extends AbstractGraphlet<U>, U extends Comparable<
 		if (saving) {
 			super.register(treeNode);
 			if (equationsByRHS.containsKey(canonical)) {
+//				System.out.println(equationsByRHS.get(canonical));
 				for (List<Set<Integer>> l : rhs.get(canonical).keySet()) {
 					List<SortedSet<Integer>> translation = new ArrayList<>();
 					for (Set<Integer> term : l) {

@@ -7,15 +7,10 @@ import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
-import coGraphlet.CoGraphlet;
-import diGraphlet.DiGraphletFactory;
-import genGraphlet.GenGraphlet;
 import genGraphlet.GenGraphletFactory;
-import graph.Graphlet;
 import graphletgeneration.AbstractGraphletFactory;
-import graph.GraphletFactory;
 import graphlets.AbstractGraphlet;
-import graphs.IllegalGraphActionException;
+import graphlets.IllegalGraphActionException;
 
 /**
  * Class that contains all data and algorithms needed to generate a
@@ -43,7 +38,7 @@ public class TreeGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U
 	private int order;
 	private SortedSet<String> usedGraphlets;
 	private Set<TreeNode<T, U>> toPrune;
-	private AbstractGraphletFactory<T> factory;
+	private AbstractGraphletFactory<T,U> factory;
 
 	/**
 	 * Creates a new TreeGenerator with the
@@ -53,16 +48,15 @@ public class TreeGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U
 	 * @param order
 	 *            The maximal order of graphlets within the tree.
 	 */
-	public TreeGenerator(AbstractGraphletFactory<T> f, int order) {
+	public TreeGenerator(AbstractGraphletFactory<T,U> f, int order) {
 		factory = f;
-		T root = f.emptyGraphlet();
-		tree = new GraphletTree<T, U>(root, order);
+		tree = new GraphletTree<T, U>(f, order);
 		AddNodeNode<T, U> rootNode = tree.getRoot();
 		currentNodes = new Stack<>();
 		currentNodes.add(rootNode);
 		currentEdges = new Stack<>();
 		graphlets = new Stack<T>();
-		graphlets.push(root);
+		graphlets.push(f.emptyGraphlet());
 		edgeTypes = tree.getEdgeTypes();
 		usedGraphlets = new TreeSet<>();
 		this.order = order;

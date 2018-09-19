@@ -14,13 +14,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import diGraphlet.DiGraph;
-import graph.Graph;
-import graph.Graphlet;
-import graphs.AbstractGraph;
-import graphs.IllegalGraphActionException;
-import tree.GraphletTree;
-import tree.TreeGenerator;
-import treewalker.TreeWalker;
+import graphlets.AbstractGraph;
+import graphlets.IllegalGraphActionException;
 
 public class GenGraph extends AbstractGraph<Byte> {
 	private DiGraph plus;
@@ -51,7 +46,7 @@ public class GenGraph extends AbstractGraph<Byte> {
 		graph.addEdge(1, 0, (byte)2);
 		System.out.println(graph);
 		System.out.println(graph.getEdges(0, 1));
-		System.out.println(graph.validEdges());
+		System.out.println(graph.edgeCombinations());
 		System.out.println(graph.edgeTypes());
 //		
 		
@@ -108,22 +103,22 @@ public class GenGraph extends AbstractGraph<Byte> {
 		return result;
 	}
 
-	@Override
-	public boolean isConnected() {
-		Deque<Integer> queue = new LinkedList<>();
-		queue.add(0);
-		Set<Integer> check = new TreeSet<>();
-		check.add(0);
-		while (!queue.isEmpty()) {
-			int node = queue.poll();
-			for (int neighbour : getNeighbours(node).keySet()) {
-				if (check.add(neighbour)) {
-					queue.addLast(neighbour);
-				}
-			}
-		}
-		return check.size() == order;
-	}
+//	@Override
+//	public boolean isConnected() {
+//		Deque<Integer> queue = new LinkedList<>();
+//		queue.add(0);
+//		Set<Integer> check = new TreeSet<>();
+//		check.add(0);
+//		while (!queue.isEmpty()) {
+//			int node = queue.poll();
+//			for (int neighbour : getNeighbours(node).keySet()) {
+//				if (check.add(neighbour)) {
+//					queue.addLast(neighbour);
+//				}
+//			}
+//		}
+//		return check.size() == order;
+//	}
 
 	@Override
 	public void addNode() {
@@ -271,7 +266,7 @@ public class GenGraph extends AbstractGraph<Byte> {
 	}
 
 	@Override
-	public List<SortedSet<Byte>> validEdges() {
+	public List<SortedSet<Byte>> edgeCombinations() {
 		List<SortedSet<Byte>> result = new ArrayList<>();
 		byte[][] options = { { 0, -1, -2 }, { 0, 1, 2 } };
 		for (int i = 1; i < 9; i++) {

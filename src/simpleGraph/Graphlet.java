@@ -1,9 +1,10 @@
-package graph;
+package simpleGraph;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Deque;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
@@ -13,7 +14,7 @@ import java.util.TreeSet;
 import java.util.function.Predicate;
 
 import graphlets.AbstractGraphlet;
-import graphs.IllegalGraphActionException;
+import graphlets.IllegalGraphActionException;
 
 public class Graphlet extends AbstractGraphlet<Boolean> {
 
@@ -64,10 +65,6 @@ public class Graphlet extends AbstractGraphlet<Boolean> {
 				throw new IllegalGraphActionException("No self-loops allowed");
 			this.a = Math.min(a, b);
 			this.b = Math.max(a, b);
-		}
-
-		private Graphlet getOuterType() {
-			return Graphlet.this;
 		}
 
 		void swap(int a, int b) {
@@ -176,21 +173,28 @@ public class Graphlet extends AbstractGraphlet<Boolean> {
 		}
 		return result;
 	}
+	
+	public static void main(String[]args) {
 
-	@Override
-	public boolean isConnected() {
-		List<Set<Integer>> components = new ArrayList<>();
-		for (int i = 0; i < order; i++) {
-			Set<Integer> s = new TreeSet<>();
-			s.add(i);
-			components.add(s);
-		}
-		for (Edge e : edges) {
-			components.get(e.a).addAll(components.get(e.b));
-			components.get(e.b).addAll(components.get(e.a));
-		}
-		return order == 0 || components.get(0).size() == order;
+		System.out.println(new Graphlet("0000111001", true).isConnected());
 	}
+
+//	@Override
+//	public boolean isConnected() {
+//		Set<Integer> used = new TreeSet<>();
+//		Deque<Integer> d = new LinkedList<>();
+//		d.add(0);
+//		used.add(0);
+//		while(!d.isEmpty()) {
+//			for(int i:getNeighbours(d.pop()).keySet()) {
+//				if(used.add(i)) {
+//					d.add(i);
+//					System.out.println(used);
+//				}
+//			}
+//		}
+//		return used.size()==order;
+//	}
 
 	@Override
 	public void addNode() {
@@ -280,7 +284,7 @@ public class Graphlet extends AbstractGraphlet<Boolean> {
 	}
 
 	@Override
-	public List<SortedSet<Boolean>> validEdges() {
+	public List<SortedSet<Boolean>> edgeCombinations() {
 		List<SortedSet<Boolean>> result = new ArrayList<>(1);
 		result.add(new TreeSet<>(edgeTypes()));
 		return result;
@@ -290,6 +294,7 @@ public class Graphlet extends AbstractGraphlet<Boolean> {
 	public void removeNode(int i) throws IllegalGraphActionException {
 		checkNode(i);
 		edges.removeIf(new NodeInEdge(i));
+		size = edges.size();
 		order--;
 		ready = false;
 

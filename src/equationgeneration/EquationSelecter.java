@@ -1,8 +1,6 @@
 package equationgeneration;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -16,7 +14,7 @@ public class EquationSelecter {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static <T extends AbstractGraphlet<U>, U extends Comparable<U>> SortedSet<Equation<T, U>> selectEquations(SortedSet<Equation<T, U>> starting) {
+	public static <T extends AbstractGraphlet<U>, U extends Comparable<U>> SortedSet<Equation<T, U>> selectEquations(Collection<Equation<T, U>> starting) {
 		SortedMap<String, Equation<T, U>> result = new TreeMap<>();
 		for (Equation<T, U> equation : starting) {
 			if (result.get(equation.getLhs().firstKey()) == null ||

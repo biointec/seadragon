@@ -116,6 +116,7 @@ public class ConditionNode<T extends AbstractGraphlet<U>, U extends Comparable<U
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		@SuppressWarnings("unchecked")
 		ConditionNode<T, U> other = (ConditionNode<T, U>) obj;
 		if (first != other.first)
 			return false;
@@ -151,7 +152,7 @@ public class ConditionNode<T extends AbstractGraphlet<U>, U extends Comparable<U
 		return child;
 	}
 
-	void setChild(TreeNode child) {
+	void setChild(TreeNode<T,U> child) {
 		this.child = child;
 	}
 
@@ -163,32 +164,8 @@ public class ConditionNode<T extends AbstractGraphlet<U>, U extends Comparable<U
 
 	}
 
-	@Override
-	public int numberOfNodes() {
-		// TODO Auto-generated method stub
-		return child.numberOfNodes();
-	}
-
-	// private static void simplify(List<ConditionNode> conditions) {
-	// if (conditions.size() > 2)
-	// for (int i = 0; i < conditions.size(); i++) {
-	// for (int j = 0; j < conditions.size(); j++) {
-	// for (int k = 0; k < conditions.size(); k++) {
-	// if (conditions.get(i).getSecond() == conditions.get(j).getFirst()
-	// && conditions.get(i).getFirst() == conditions.get(k).getFirst()
-	// && conditions.get(j).getSecond() == conditions.get(k).getSecond()) {
-	// conditions.remove(k);
-	// k--;
-	// if (i > k) {
-	// i--;
-	// }
-	// if (j > k) {
-	// j--;
-	// }
-	// }
-	// }
-	// }
-	// }
-	// }
-
+//	@Override
+//	public int numberOfNodes() {
+//		return child.numberOfNodes();
+//	}
 }

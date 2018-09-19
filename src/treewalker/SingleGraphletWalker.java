@@ -2,31 +2,20 @@ package treewalker;
 
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.Stack;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
-import diGraphlet.DiGraphlet;
-import diGraphlet.DiGraphletFactory;
 import equationgeneration.CommonsCounter;
-import equationgeneration.Equation;
-import graph.Graph;
-import graph.Graphlet;
-import graph.GraphletFactory;
+import graphlets.AbstractGraph;
 import graphlets.AbstractGraphlet;
-import graphs.AbstractGraph;
 import tree.AddEdgeNode;
 import tree.AddNodeNode;
 import tree.ConditionNode;
 import tree.GraphletTree;
-import tree.TreeGenerator;
 import tree.TreeNode;
 
 public class SingleGraphletWalker<T extends AbstractGraphlet<U>, U extends Comparable<U>> extends TreeWalker<T, U> {
@@ -91,6 +80,7 @@ public class SingleGraphletWalker<T extends AbstractGraphlet<U>, U extends Compa
 			for (Set<Integer> partTerm : l) {
 				Set<Integer> translatedPart = new TreeSet<>();
 				for (int i : partTerm) {
+//					translatedPart.add(inversePermutation.get(i));
 					translatedPart.add(permutation.get(i));
 				}
 				translatedTerm.add(translatedPart);

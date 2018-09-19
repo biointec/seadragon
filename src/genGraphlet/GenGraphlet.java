@@ -1,7 +1,6 @@
 package genGraphlet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -9,10 +8,14 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import graphlets.AbstractGraphlet;
-import graphs.IllegalGraphActionException;
+import graphlets.IllegalGraphActionException;
 
 public class GenGraphlet extends AbstractGraphlet<Byte> {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5796007812371156641L;
 	byte[][] matrix;
 
 	public GenGraphlet(String representation,boolean isOrbitRep) {
@@ -131,7 +134,6 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 					double angle = 180. / order * (j - i) + 360. / order * i + (i < j ? 180 : 0);
 					builder.append(x(i, 0) + " " + y(i, 0) + " translate\n");
 					builder.append((int) Math.round(angle) + " rotate\n");
-					int arrowheight = 30;
 					int arrowwidth = 15;
 					builder.append("newpath\n-");
 					builder.append(arrowwidth);
@@ -153,19 +155,19 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 		return builder;
 	}
 
-	@Override
-	public boolean isConnected() {
-		List<Integer> result = new ArrayList<>();
-		result.add(0);
-		for (int i = 0; i < result.size(); i++) {
-			for (int j = 0; j < order; j++) {
-				if ((matrix[result.get(i)][j] != 0|| matrix[j][result.get(i)] != 0)&& !result.contains(j)) {
-					result.add(j);
-				}
-			}
-		}
-		return result.size() == order;
-	}
+//	@Override
+//	public boolean isConnected() {
+//		List<Integer> result = new ArrayList<>();
+//		result.add(0);
+//		for (int i = 0; i < result.size(); i++) {
+//			for (int j = 0; j < order; j++) {
+//				if ((matrix[result.get(i)][j] != 0|| matrix[j][result.get(i)] != 0)&& !result.contains(j)) {
+//					result.add(j);
+//				}
+//			}
+//		}
+//		return result.size() == order;
+//	}
 
 	@Override
 	public void addNode() {
@@ -344,7 +346,7 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 	}
 
 	@Override
-	public List<SortedSet<Byte>> validEdges() {
+	public List<SortedSet<Byte>> edgeCombinations() {
 		List<SortedSet<Byte>> result = new ArrayList<>();
 		byte[][] options = { { 0, -1, -2 }, { 0, 1, 2 } };
 		for (int i = 1; i < 9; i++) {

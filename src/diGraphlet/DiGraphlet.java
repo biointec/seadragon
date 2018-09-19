@@ -12,7 +12,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import graphlets.AbstractGraphlet;
-import graphs.IllegalGraphActionException;
+import graphlets.IllegalGraphActionException;
 
 public class DiGraphlet extends AbstractGraphlet<Boolean> {
 
@@ -68,7 +68,6 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 		SortedSet<Integer> reserve = arcs.get(a);
 		arcs.set(a, arcs.get(b));
 		arcs.set(b, reserve);
-
 	}
 
 	public String toString() {
@@ -104,28 +103,6 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 		} else if (!arcs.equals(other.arcs))
 			return false;
 		return true;
-	}
-
-	@Override
-	public boolean isConnected() {
-		Set<Integer> connected = new HashSet<Integer>();
-		Queue<Integer> connect = new LinkedList<>();
-		connected.add(0);
-		connect.add(0);
-		while (!connect.isEmpty() && connected.size() != order) {
-			int current = connect.poll();
-			for (int i : arcs.get(current)) {
-				if (connected.add(i)) {
-					connect.add(i);
-				}
-			}
-			for (int i = 0; i < arcs.size(); i++) {
-				if (arcs.get(i).contains(current) && connected.add(i)) {
-					connect.add(i);
-				}
-			}
-		}
-		return connected.size() == order;
 	}
 
 	@Override
@@ -202,7 +179,7 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 	}
 
 	@Override
-	public List<SortedSet<Boolean>> validEdges() {
+	public List<SortedSet<Boolean>> edgeCombinations() {
 		List<SortedSet<Boolean>> result = new ArrayList<>();
 		SortedSet<Boolean> a = new TreeSet<Boolean>();
 		a.add(true);
@@ -267,10 +244,12 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 	@Override
 	public void removeNode(int i) throws IllegalGraphActionException {
 		ready = false;
+		size-=arcs.get(i).size();
 		arcs.remove(i);
 		order--;
 		for (int j = 0; j < order; j++) {
-			arcs.get(j).remove(i);
+			if(arcs.get(j).remove(i)){
+			size--;}
 			for (int k = i + 1; k < order; k++) {
 				if (arcs.get(j).remove(k)) {
 					arcs.get(j).add(k - 1);
@@ -316,11 +295,11 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 			throw new IllegalGraphActionException("No double edges allowed between nodes " + i + " and " + j);
 		} else if (status) {
 			arcs.get(i).add(j);
+			size++;
 		} else {
 			arcs.get(j).add(i);
+			size++;
 		}
-		size++;
-
 	}
 
 	@Override
@@ -338,6 +317,8 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 	}
 	
 	public boolean isComplete() {
+//		System.out.println(canonical());
+//		System.out.println(order+" "+size);
 		return size == order * (order - 1);
 	}
 	@Override

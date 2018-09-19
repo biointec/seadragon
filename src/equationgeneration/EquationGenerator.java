@@ -1,11 +1,10 @@
 package equationgeneration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -14,52 +13,74 @@ import java.util.TreeSet;
 
 import diGraphlet.DiGraphlet;
 import diGraphlet.DiGraphletFactory;
-import graph.Graphlet;
 import graphletgeneration.AbstractGraphletFactory;
-import graphletgeneration.GraphletGenerator;
+import graphletgeneration.GraphletIterator;
 import graphlets.AbstractGraphlet;
 import graphlets.CanonicalComparator;
-import graphs.IllegalGraphActionException;
+import graphlets.IllegalGraphActionException;
+import simpleGraph.Graphlet;
+import simpleGraph.GraphletFactory;
 import tree.GraphletTree;
 import tree.TreeGenerator;
 import treewalker.SingleGraphletWalker;
-import treewalker.TreeWalker;
 
 public class EquationGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U>> {
 
-	List<T> start;
-	SortedSet<Equation<T, U>> result;
+	Iterator<T> start;
+	Collection<Equation<T, U>> result;
 	List<U> edges;
 	List<SortedSet<Integer>> edgeCombinations;
-	AbstractGraphletFactory<T> factory;
+	AbstractGraphletFactory<T,U> factory;
 	GraphletTree<T, U> tree;
 
-	public EquationGenerator(List<T> start) {
-		this.start = start;
-		edges = new ArrayList<>(start.get(0).edgeTypes());
+
+	public EquationGenerator(AbstractGraphletFactory<T,U> type, int order) {
+//		this(new GraphletGenerator<T,U>(type).generateGraphlets(order - 1, type));
+		this.start = new GraphletIterator<>(type,order-1);
+//		start.setOrder(order-1);
+		edges = type.edgeTypes();
 		edgeCombinations = new ArrayList<>();
-		for (SortedSet<U> s : start.get(0).validEdges()) {
+		for (SortedSet<U> s : type.edgeCombinations()) {
 			SortedSet<Integer> t = new TreeSet<>();
 			for (U u : s) {
 				t.add(edges.indexOf(u));
 			}
 			edgeCombinations.add(t);
 		}
-	}
-
-	public EquationGenerator(AbstractGraphletFactory<T> type, int order) {
-		this(GraphletGenerator.generateGraphlets(order - 1, type));
 		factory = type;
 		tree = new TreeGenerator<>(type, order - 1).generateTree();
 	}
+	
+	public EquationGenerator(AbstractGraphletFactory<T,U> type, int order, GraphletTree<T,U> tree) {
+//		this(new GraphletGenerator<T,U>(type).generateGraphlets(order - 1, type));
+		this.start = new GraphletIterator<>(type,order-1);
+//		start.setOrder(order-1);
+		edges = type.edgeTypes();
+		edgeCombinations = new ArrayList<>();
+		for (SortedSet<U> s : type.edgeCombinations()) {
+			SortedSet<Integer> t = new TreeSet<>();
+			for (U u : s) {
+				t.add(edges.indexOf(u));
+			}
+			edgeCombinations.add(t);
+		}
+		factory = type;
+		this.tree = tree;
+	}
 
-	public SortedSet<Equation<T, U>> generateEquations() {
+	public Collection<Equation<T, U>> generateEquations() {
 		result = new TreeSet<>();
-		for (T graphlet : start) {
+//		System.out.println("?");
+//		System.out.println(start.hasNext());
+		while(start.hasNext()) {
+			T graphlet = start.next();
+//			System.out.println(graphlet);
 			Set<Set<List<Set<Integer>>>> rhses = rhsTerms(graphlet);
+//			System.out.println(rhses);
 			for (Set<List<Set<Integer>>> rhs : rhses) {
 				int minus = minus(graphlet, rhs.iterator().next());
 				SortedMap<String, Integer> lhs = lhsTerms(graphlet, rhs, minus);
+//				System.out.println(lhs);
 				if (lhs!=null) {
 					Equation<T, U> equation = new Equation<T, U>(lhs, graphlet, rhs, minus);
 					result.add(equation);

@@ -1,34 +1,27 @@
 package treewalker;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import java.util.NavigableMap;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeMap;
 
-import diGraphlet.DiGraph;
-import diGraphlet.DiGraphlet;
-import diGraphlet.DiGraphletFactory;
-import equationgeneration.Equation;
-import equationgeneration.EquationGenerator;
-import genGraphlet.GenGraph;
-import genGraphlet.GenGraphlet;
-import genGraphlet.GenGraphletFactory;
-import graph.Graph;
+import graphlets.AbstractGraph;
 import graphlets.AbstractGraphlet;
 import graphlets.CanonicalComparator;
-import graphs.AbstractGraph;
 import tree.AddEdgeNode;
 import tree.AddNodeNode;
 import tree.ConditionNode;
 import tree.GraphletTree;
-import tree.TreeGenerator;
 import tree.TreeNode;
 
+/**
+ * 
+ * @author Ine Melckenbeeck
+ *
+ * @param <T>
+ * @param <U>
+ */
 public class TreeWalker<T extends AbstractGraphlet<U>, U extends Comparable<U>> {
 
 	protected GraphletTree<T, U> tree;
@@ -43,19 +36,6 @@ public class TreeWalker<T extends AbstractGraphlet<U>, U extends Comparable<U>> 
 		results = new TreeMap<>(new CanonicalComparator());
 		this.graph = graph;
 		factors = new TreeMap<>();
-	}
-
-	public NavigableMap<String, Long> run(int node) {
-		instance.push(node);
-		action(tree.getRoot());
-		instance.pop();
-		solve();
-		return results;
-	}
-
-	public void reset() {
-		instance = new Stack<>();
-		results = new TreeMap<>(new CanonicalComparator());
 	}
 
 	public void run(PrintStream ps) {
@@ -74,16 +54,13 @@ public class TreeWalker<T extends AbstractGraphlet<U>, U extends Comparable<U>> 
 		}
 	}
 
-	// public static void main(String[] args) {
-	// GenGraphletFactory gf = new GenGraphletFactory(true);
-	// int order = 2;
-	// GraphletTree<GenGraphlet, Byte> tree = new TreeGenerator<>(gf,
-	// order).generateTree();
-	// GenGraph graph = GenGraph.readGraph("test/test.txt");
-	// tree.print();
-	// TreeWalker<GenGraphlet, Byte> ew = new TreeWalker<>(tree, graph);
-	// ew.run(System.out);
-	// }
+	public NavigableMap<String, Long> run(int node) {
+		instance.push(node);
+		action(tree.getRoot());
+		instance.pop();
+		solve();
+		return results;
+	}
 
 	protected void solve() {
 		for (String s : results.keySet()) {
@@ -91,6 +68,11 @@ public class TreeWalker<T extends AbstractGraphlet<U>, U extends Comparable<U>> 
 				results.put(s, results.get(s) / factors.get(s));
 			}
 		}
+	}
+
+	public void reset() {
+		instance = new Stack<>();
+		results = new TreeMap<>(new CanonicalComparator());
 	}
 
 	protected String printResults() {
@@ -108,24 +90,12 @@ public class TreeWalker<T extends AbstractGraphlet<U>, U extends Comparable<U>> 
 	}
 
 	protected void action(TreeNode<T, U> currentNode) {
-		// System.out.println(currentNode);
-		// System.out.println(instance);
 		if (currentNode instanceof AddNodeNode) {
 			addNodeAction((AddNodeNode<T, U>) currentNode);
 		} else if (currentNode instanceof AddEdgeNode) {
 			addEdgeAction((AddEdgeNode<T, U>) currentNode);
 		} else if (currentNode instanceof ConditionNode) {
 			conditionAction((ConditionNode<T, U>) currentNode);
-		}
-	}
-
-	protected void register(AddNodeNode<T, U> treeNode) {
-		String canonical = treeNode.getRepresentation();
-		try {
-			results.put(canonical, results.get(canonical) + 1);
-		} catch (NullPointerException e) {
-			factors.put(canonical, treeNode.getSymmetryFactor());
-			results.put(canonical, 1L);
 		}
 	}
 
@@ -141,6 +111,16 @@ public class TreeWalker<T extends AbstractGraphlet<U>, U extends Comparable<U>> 
 					}
 				}
 			}
+		}
+	}
+
+	protected void register(AddNodeNode<T, U> treeNode) {
+		String canonical = treeNode.getRepresentation();
+		try {
+			results.put(canonical, results.get(canonical) + 1);
+		} catch (NullPointerException e) {
+			factors.put(canonical, treeNode.getSymmetryFactor());
+			results.put(canonical, 1L);
 		}
 	}
 

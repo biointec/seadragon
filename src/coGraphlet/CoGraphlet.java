@@ -1,16 +1,14 @@
 package coGraphlet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import diGraphlet.DiGraphlet;
 import graphlets.AbstractGraphlet;
-import graphs.IllegalGraphActionException;
+import graphlets.IllegalGraphActionException;
 
 public class CoGraphlet extends AbstractGraphlet<Integer> {
 
@@ -94,26 +92,26 @@ public class CoGraphlet extends AbstractGraphlet<Integer> {
 
 	}
 
-	@Override
-	public boolean isConnected() {
-		List<Integer> l = new ArrayList<>();
-		l.add(0);
-		int i = 0;
-		while (i < l.size() && l.size() < order) {
-			for (int j = 0; j < l.get(i); j++) {
-				if (matrix[l.get(i)][j] != 0 && !l.contains(j)) {
-					l.add(j);
-				}
-			}
-			for (int j = l.get(i) + 1; j < order; j++) {
-				if (matrix[j][l.get(i)] != 0 && !l.contains(j)) {
-					l.add(j);
-				}
-			}
-			i++;
-		}
-		return l.size() == order;
-	}
+//	@Override
+//	public boolean isConnected() {
+//		List<Integer> l = new ArrayList<>();
+//		l.add(0);
+//		int i = 0;
+//		while (i < l.size() && l.size() < order) {
+//			for (int j = 0; j < l.get(i); j++) {
+//				if (matrix[l.get(i)][j] != 0 && !l.contains(j)) {
+//					l.add(j);
+//				}
+//			}
+//			for (int j = l.get(i) + 1; j < order; j++) {
+//				if (matrix[j][l.get(i)] != 0 && !l.contains(j)) {
+//					l.add(j);
+//				}
+//			}
+//			i++;
+//		}
+//		return l.size() == order;
+//	}
 
 	@Override
 	public String representation() {
@@ -288,7 +286,7 @@ public class CoGraphlet extends AbstractGraphlet<Integer> {
 	}
 
 	@Override
-	public List<SortedSet<Integer>> validEdges() {
+	public List<SortedSet<Integer>> edgeCombinations() {
 		List<SortedSet<Integer>> result = new ArrayList<>();
 		for(int i:edgeTypes()) {
 			SortedSet<Integer>edge = new TreeSet<>();

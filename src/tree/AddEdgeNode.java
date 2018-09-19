@@ -95,15 +95,15 @@ public class AddEdgeNode<T extends AbstractGraphlet<U>, U extends Comparable<U>>
 		}	
 	}
 
-	@Override
-	public int numberOfNodes() {
-		int result = 0;
-		for(int i=0;i<2;i++) {
-			if(children.get(i)!=null) {
-				result+=children.get(i).numberOfNodes();
-			}
-		}
-		return result;
-	}
+//	@Override
+//	public int numberOfNodes() {
+//		int result = 0;
+//		for(int i=0;i<2;i++) {
+//			if(children.get(i)!=null) {
+//				result+=children.get(i).numberOfNodes();
+//			}
+//		}
+//		return result;
+//	}
 
 }

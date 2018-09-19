@@ -1,9 +1,8 @@
-package graph;
+package simpleGraph;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,11 +13,8 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import graphs.AbstractGraph;
-import graphs.IllegalGraphActionException;
-import tree.GraphletTree;
-import tree.TreeGenerator;
-import treewalker.TreeWalker;
+import graphlets.AbstractGraph;
+import graphlets.IllegalGraphActionException;
 
 public class Graph extends AbstractGraph<Boolean> {
 
@@ -26,16 +22,6 @@ public class Graph extends AbstractGraph<Boolean> {
 
 	public Graph() {
 		adjacency = new ArrayList<>();
-	}
-
-	public static void main(String[] args) {
-		// Graph graph = readGraph("test/randomgraph-100-1000.txt");
-		Graph graph = readGraph("test/example.in");
-//		System.out.println(graph);
-		GraphletTree<Graphlet, Boolean> tree = new TreeGenerator<Graphlet, Boolean>(new GraphletFactory( true), 5)
-				.generateTree();
-		TreeWalker<Graphlet, Boolean> walker = new TreeWalker<>(tree, graph);
-		walker.run(System.out);
 	}
 
 	public static Graph readGraph(String filename) {
@@ -73,22 +59,22 @@ public class Graph extends AbstractGraph<Boolean> {
 		return result;
 	}
 
-	@Override
-	public boolean isConnected() {
-		Deque<Integer> queue = new LinkedList<>();
-		queue.add(0);
-		Set<Integer> check = new TreeSet<>();
-		check.add(0);
-		while (!queue.isEmpty()) {
-			int node = queue.poll();
-			for (int neighbour : adjacency.get(node)) {
-				if (check.add(neighbour)) {
-					queue.addLast(neighbour);
-				}
-			}
-		}
-		return check.size() == order;
-	}
+	// @Override
+	// public boolean isConnected() {
+	// Deque<Integer> queue = new LinkedList<>();
+	// queue.add(0);
+	// Set<Integer> check = new TreeSet<>();
+	// check.add(0);
+	// while (!queue.isEmpty()) {
+	// int node = queue.poll();
+	// for (int neighbour : adjacency.get(node)) {
+	// if (check.add(neighbour)) {
+	// queue.addLast(neighbour);
+	// }
+	// }
+	// }
+	// return check.size() == order;
+	// }
 
 	@Override
 	public void addNode() {
@@ -192,7 +178,7 @@ public class Graph extends AbstractGraph<Boolean> {
 	}
 
 	@Override
-	public List<SortedSet<Boolean>> validEdges() {
+	public List<SortedSet<Boolean>> edgeCombinations() {
 		List<SortedSet<Boolean>> result = new ArrayList<>();
 		result.add(new TreeSet<>(edgeTypes()));
 		return result;

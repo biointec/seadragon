@@ -2,10 +2,8 @@ package equationgeneration;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.SortedSet;
 
 import graphlets.AbstractGraphlet;
 import graphlets.CanonicalComparator;
@@ -53,6 +51,7 @@ public class Equation<E extends AbstractGraphlet<V>, V extends Comparable<V>> im
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		@SuppressWarnings("unchecked")
 		Equation<E,V> other = (Equation<E,V>) obj;
 		if (commons == null) {
 			if (other.commons != null)

@@ -107,13 +107,13 @@ public class AddNodeNode<T extends AbstractGraphlet<U>, U extends Comparable<U>>
 		reverseChildren1.remove(original);
 	}
 
-	@Override
-	public int numberOfNodes() {
-		int result = 1;
-		for(TreeNode<T,U> tn:reverseChildren1.keySet()) {
-			result+=tn.numberOfNodes();
-		}
-		return result;
-	}
+//	@Override
+//	public int numberOfNodes() {
+//		int result = 1;
+//		for(TreeNode<T,U> tn:reverseChildren1.keySet()) {
+//			result+=tn.numberOfNodes();
+//		}
+//		return result;
+//	}
 
 }

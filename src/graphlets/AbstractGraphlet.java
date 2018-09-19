@@ -5,17 +5,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import diGraphlet.DiGraphlet;
-import graph.Graphlet;
 import graphletgeneration.Permutator;
-import graphs.AbstractGraph;
 
+/**
+ * 
+ * @author imelcken
+ *
+ * @param <T>
+ */
 public abstract class AbstractGraphlet<T extends Comparable<T>> extends AbstractGraph<T>
 		implements Serializable, Comparable<AbstractGraphlet<T>> {
 
@@ -29,7 +30,6 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 	private static final int drawheight = 841;
 
 	protected boolean ready = false;
-
 	protected Set<String> representations;
 	protected List<List<Integer>> automorphisms;
 	protected List<Integer> canonicalAutomorphism;
@@ -97,17 +97,17 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AbstractGraphlet other = (AbstractGraphlet) obj;
+		@SuppressWarnings("unchecked")
+		AbstractGraphlet<T> other = (AbstractGraphlet<T>) obj;
 		if (isOrbitRep != other.isOrbitRep)
 			return false;
 		if (order != other.order)
 			return false;
 		if (size != other.size)
 			return false;
-		if (canonical == null) {
-			if (other.canonical != null)
-				return false;
-		} else if (!canonical.equals(other.canonical))
+		if (canonical == null) 
+			permute();
+		if (!canonical.equals(other.canonical))
 			return false;
 		return true;
 	}

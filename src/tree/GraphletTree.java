@@ -3,13 +3,12 @@ package tree;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedSet;
 
+import graphletgeneration.AbstractGraphletFactory;
 import graphlets.AbstractGraphlet;
 
 public class GraphletTree<T extends AbstractGraphlet<U>, U extends Comparable<U>> implements Serializable{
-
-
+	
 	/**
 	 * 
 	 */
@@ -17,19 +16,14 @@ public class GraphletTree<T extends AbstractGraphlet<U>, U extends Comparable<U>
 	private List<U> edgeTypes;
 	private AddNodeNode<T,U> root;
 	private List<AddNodeNode<T,U>> leaves;
-	private List<String> leafGraphlets;
-	
-	public List<String> getLeafGraphlets() {
-		return leafGraphlets;
-	}
-
 	private int order;
 	private boolean isOrbitRep;
+
 	
-	public GraphletTree(T root, int order) {
-		edgeTypes = root.edgeTypes();
+	public GraphletTree(AbstractGraphletFactory<T,U> gf, int order) {
+		T root = gf.emptyGraphlet();
+		edgeTypes = gf.edgeTypes();
 		leaves = new ArrayList<>();
-		leafGraphlets = new ArrayList<>();
 		System.out.println(root);
 		this.root=new AddNodeNode<T,U>(null,root);
 		this.root.tree=this;
@@ -46,7 +40,6 @@ public class GraphletTree<T extends AbstractGraphlet<U>, U extends Comparable<U>
 	}
 	void addLeaf(AddNodeNode<T,U>leaf) {
 		leaves.add(leaf);
-		leafGraphlets.add(leaf.getRepresentation());
 	}
 	
 	public List<AddNodeNode<T,U>> getLeaves(){

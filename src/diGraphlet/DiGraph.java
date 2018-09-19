@@ -13,15 +13,8 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import genGraphlet.GenGraph;
-import genGraphlet.GenGraphlet;
-import graph.Graph;
-import graph.Graphlet;
-import graphs.AbstractGraph;
-import graphs.IllegalGraphActionException;
-import tree.GraphletTree;
-import tree.TreeGenerator;
-import treewalker.TreeWalker;
+import graphlets.AbstractGraph;
+import graphlets.IllegalGraphActionException;
 
 public class DiGraph extends AbstractGraph<Boolean> {
 
@@ -32,25 +25,6 @@ public class DiGraph extends AbstractGraph<Boolean> {
 		arcs = new ArrayList<>();
 		invertedArcs = new ArrayList<>();
 	}
-	public static void main(String[]args) {
-//		GenGraph graph = new GenGraph();
-//		System.out.println(graph);
-//		graph.addNode();
-//		graph.addNode();
-//		graph.addNode();
-//		graph.addNode();
-//		System.out.println(graph);
-//		
-		
-				DiGraph graph = readGraph("test/test.txt");
-				System.out.println(graph);
-				GraphletTree<DiGraphlet, Boolean> tree = new TreeGenerator<>(new DiGraphletFactory( true), 3)
-						.generateTree();
-				tree.print();
-				TreeWalker<DiGraphlet, Boolean> walker = new TreeWalker<>(tree, graph);
-				walker.run(System.out);
-	}
-	
 	
 	public String toString() {
 		return arcs.toString()+"\n"+invertedArcs.toString();
@@ -91,27 +65,27 @@ public class DiGraph extends AbstractGraph<Boolean> {
 		return result;
 	}
 	
-	@Override
-	public boolean isConnected() {
-		Deque<Integer> queue = new LinkedList<>();
-		queue.add(0);
-		Set<Integer> check = new TreeSet<>();
-		check.add(0);
-		while (!queue.isEmpty()) {
-			int node = queue.poll();
-			for (int neighbour : arcs.get(node)) {
-				if (check.add(neighbour)) {
-					queue.addLast(neighbour);
-				}
-			}
-			for (int neighbour : invertedArcs.get(node)) {
-				if (check.add(neighbour)) {
-					queue.addLast(neighbour);
-				}
-			}
-		}
-		return check.size() == order;
-	}
+//	@Override
+//	public boolean isConnected() {
+//		Deque<Integer> queue = new LinkedList<>();
+//		queue.add(0);
+//		Set<Integer> check = new TreeSet<>();
+//		check.add(0);
+//		while (!queue.isEmpty()) {
+//			int node = queue.poll();
+//			for (int neighbour : arcs.get(node)) {
+//				if (check.add(neighbour)) {
+//					queue.addLast(neighbour);
+//				}
+//			}
+//			for (int neighbour : invertedArcs.get(node)) {
+//				if (check.add(neighbour)) {
+//					queue.addLast(neighbour);
+//				}
+//			}
+//		}
+//		return check.size() == order;
+//	}
 
 	@Override
 	public void addNode() {
@@ -252,7 +226,7 @@ public class DiGraph extends AbstractGraph<Boolean> {
 	}
 
 	@Override
-	public List<SortedSet<Boolean>> validEdges() {
+	public List<SortedSet<Boolean>> edgeCombinations() {
 		List<SortedSet<Boolean>> result = new ArrayList<>();
 		SortedSet<Boolean> a = new TreeSet<Boolean>();
 		a.add(true);

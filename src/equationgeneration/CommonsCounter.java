@@ -1,27 +1,18 @@
 package equationgeneration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.Stack;
-import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
 
-import diGraphlet.DiGraph;
-import graph.Graph;
-import graphlets.AbstractGraphlet;
-import graphs.AbstractGraph;
+import graphlets.AbstractGraph;
 
 public class CommonsCounter<T extends AbstractGraph<U>, U extends Comparable<U>> {
 
 	private T graph;
-	private Map<SortedMap<U, SortedSet<Integer>>, Integer> commons;
 	private Map<List<SortedSet<Integer>>, Integer> alternateCommons;
 	List<U> types;
 	List<SortedSet<U>> combinations;
@@ -30,23 +21,16 @@ public class CommonsCounter<T extends AbstractGraph<U>, U extends Comparable<U>>
 
 	public CommonsCounter(T graph, int order) {
 		this.graph = graph;
-		commons = new HashMap<>();
 		alternateCommons = new HashMap<>();
 		types = new ArrayList<>(graph.edgeTypes());
 		this.order = order;
 		graphorder = graph.getOrder();
-		combinations = graph.validEdges();
+		combinations = graph.edgeCombinations();
 		// combinations.add(new TreeSet<U>());
 		// System.out.println(combinations);
 	}
 
-	public int getCommonNeighbours(SortedMap<U, SortedSet<Integer>> key) {
-		if (commons.containsKey(key)) {
-			return commons.get(key);
-		} else {
-			return 0;
-		}
-	}
+	
 
 	public int getCommonNeighbours(List<SortedSet<Integer>> key) {
 		if (alternateCommons.containsKey(key)) {
@@ -56,12 +40,7 @@ public class CommonsCounter<T extends AbstractGraph<U>, U extends Comparable<U>>
 		}
 	}
 
-	public static <U> boolean addNode(Map<U, SortedSet<Integer>> nodes, int node, U edge) {
-		if (!nodes.containsKey(edge)) {
-			nodes.put(edge, new TreeSet<>());
-		}
-		return nodes.get(edge).add(node);
-	}
+	
 
 	public Map<List<SortedSet<Integer>>,Integer> recursiveCommons() {
 		List<SortedSet<Integer>> start = new ArrayList<SortedSet<Integer>>();
@@ -77,13 +56,6 @@ public class CommonsCounter<T extends AbstractGraph<U>, U extends Comparable<U>>
 		return alternateCommons;
 	}
 
-	public static <U> SortedMap<U, SortedSet<Integer>> deepCopy(SortedMap<U, SortedSet<Integer>> original) {
-		SortedMap<U, SortedSet<Integer>> result = new TreeMap<>();
-		for (U key : original.keySet()) {
-			result.put(key, new TreeSet<Integer>(original.get(key)));
-		}
-		return result;
-	}
 
 	public static List<SortedSet<Integer>> deepCopy(List<SortedSet<Integer>> original) {
 		List<SortedSet<Integer>> result = new ArrayList<>();
@@ -138,38 +110,5 @@ public class CommonsCounter<T extends AbstractGraph<U>, U extends Comparable<U>>
 		}
 	}
 
-	public void recursiveCommons(SortedMap<U, SortedSet<Integer>> key, SortedSet<Integer> current,
-			Stack<Integer> instance, int edge) {
-
-		if (!instance.isEmpty())
-			for (int i = edge + 1; i < types.size(); i++) {
-				SortedSet<Integer> neighbours = new TreeSet<Integer>(
-						graph.getInvertedNeighbours(instance.peek(), types.get(i)));
-				neighbours.retainAll(current);
-				if (!neighbours.isEmpty()) {
-					SortedMap<U, SortedSet<Integer>> newkey = deepCopy(key);
-					addNode(newkey, instance.peek(), types.get(i));
-					commons.put(newkey, neighbours.size());
-					recursiveCommons(newkey, neighbours, instance, i);
-				}
-			}
-		if (instance.size() != order) {
-			int start = instance.isEmpty() ? 0 : instance.peek() + 1;
-			for (int i = start; i < graphorder; i++) {
-				for (int j = 0; j < types.size(); j++) {
-					SortedSet<Integer> neighbours = new TreeSet<Integer>(graph.getInvertedNeighbours(i, types.get(j)));
-					if (!instance.isEmpty())
-						neighbours.retainAll(current);
-					if (!neighbours.isEmpty()) {
-						SortedMap<U, SortedSet<Integer>> newkey = deepCopy(key);
-						addNode(newkey, i, types.get(j));
-						commons.put(newkey, neighbours.size());
-						instance.push(i);
-						recursiveCommons(newkey, neighbours, instance, j);
-						instance.pop();
-					}
-				}
-			}
-		}
-	}
+	
 }
