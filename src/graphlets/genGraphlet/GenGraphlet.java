@@ -1,4 +1,4 @@
-package genGraphlet;
+package graphlets.genGraphlet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -170,46 +170,46 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 //	}
 
 	@Override
-	public void addNode() {
+	public void addNodeInternal() {
 		byte[][] oldMatrix = matrix;
-		order++;
-		matrix = new byte[order][order];
-		for (int i = 0; i < order - 1; i++) {
-			for (int j = 0; j < order - 1; j++) {
+//		order++;
+		matrix = new byte[order+1][order+1];
+		for (int i = 0; i < order ; i++) {
+			for (int j = 0; j < order ; j++) {
 				matrix[i][j] = oldMatrix[i][j];
 			}
-			matrix[i][order - 1] = 0;
-			matrix[order - 1][i] = 0;
+			matrix[i][order] = 0;
+			matrix[order ][i] = 0;
 		}
-		matrix[order - 1][order - 1] = 0;
-		ready=false;
+		matrix[order][order] = 0;
+//		ready=false;
 	}
 
 	@Override
-	public void removeNode(int i) throws IllegalGraphActionException {
+	public void removeNodeInternal(int i) throws IllegalGraphActionException {
 		checkNode(i);
 		byte[][] oldMatrix = matrix;
 		for(int j=0;j<order;j++) {
 			if(oldMatrix[i][j]!=0) {
-				size--;
+//				size--;
 			}
 			if(oldMatrix[j][i]!=0) {
-				size--;
+//				size--;
 			}
 		}
-		order--;
-		matrix = new byte[order][order];
-		for (int k = 0; k < order; k++) {
-			for (int j = 0; j < order; j++) {
+//		order--;
+		matrix = new byte[order-1][order-1];
+		for (int k = 0; k < order-1; k++) {
+			for (int j = 0; j < order-1; j++) {
 				matrix[k][j] = oldMatrix[k + (k >= i ? 1 : 0)][j + (j >= i ? 1 : 0)];
 			}
 		}
 
-		ready=false;
+//		ready=false;
 	}
 
 	@Override
-	public void addEdge(int i, int j, Byte status) throws IllegalGraphActionException {
+	public void addEdgeInternal(int i, int j, Byte status) throws IllegalGraphActionException {
 		checkNode(i);
 		checkNode(j);
 		if (status < 0) {
@@ -225,41 +225,41 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 			case 1:
 			case '+':
 				matrix[i][j] = 1;
-				size++;
+//				size++;
 				break;
 			case 2:
 			case '-':
 				matrix[i][j] = 2;
-				size++;
+//				size++;
 				break;
 			default:
 				throw new IllegalGraphActionException("Invalid edge type.");
 			}
 		}
-		ready=false;
+//		ready=false;
 
 	}
 
 	@Override
-	public void removeEdge(int i, int j) throws IllegalGraphActionException {
+	public void removeEdgeInternal(int i, int j) throws IllegalGraphActionException {
 		checkNode(i);
 		checkNode(j);
 		checkEdge(i, j);
 		if (matrix[i][j] != 0) {
 			matrix[i][j] = 0;
-			size--;
+//			size--;
 		}
 		if (matrix[j][i] != 0) {
 			matrix[j][i] = 0;
-			size--;
+//			size--;
 		}
-		ready=false;
+//		ready=false;
 	}
 
 	@Override
-	public void removeEdge(int i, int j, Byte type) throws IllegalGraphActionException {
-		checkNode(i);
-		checkNode(j);
+	public void removeEdgeInternal(int i, int j, Byte type) throws IllegalGraphActionException {
+//		checkNode(i);
+//		checkNode(j);
 
 		if (type < 0) {
 			type = (byte) (-type);
@@ -269,13 +269,13 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 		}
 		if (matrix[i][j] == type) {
 			matrix[i][j] = 0;
-			size--;
+//			size--;
 		} else {
 			throw new IllegalGraphActionException(
 					"No edge of type " + type + " present between node " + i + " and " + j);
 		}
 
-		ready=false;
+//		ready=false;
 	}
 
 	@Override
@@ -335,34 +335,34 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 		return size / (order - 1.) / order;
 	}
 
-	@Override
-	public List<Byte> edgeTypes() {
-		List<Byte> result = new ArrayList<>();
-		result.add((byte) 1);
-		result.add((byte) -1);
-		result.add((byte) 2);
-		result.add((byte) -2);
-		return result;
-	}
-
-	@Override
-	public List<SortedSet<Byte>> edgeCombinations() {
-		List<SortedSet<Byte>> result = new ArrayList<>();
-		byte[][] options = { { 0, -1, -2 }, { 0, 1, 2 } };
-		for (int i = 1; i < 9; i++) {
-			int a = i % 3;
-			int b = i / 3;
-			SortedSet<Byte> piece = new TreeSet<>();
-			if (options[0][a] != 0) {
-				piece.add(options[0][a]);
-			}
-			if (options[1][b] != 0) {
-				piece.add(options[1][b]);
-			}
-			result.add(piece);
-		}
-		return result;
-	}
+//	@Override
+//	public List<Byte> edgeTypes() {
+//		List<Byte> result = new ArrayList<>();
+//		result.add((byte) 1);
+//		result.add((byte) -1);
+//		result.add((byte) 2);
+//		result.add((byte) -2);
+//		return result;
+//	}
+//
+//	@Override
+//	public List<SortedSet<Byte>> edgeCombinations() {
+//		List<SortedSet<Byte>> result = new ArrayList<>();
+//		byte[][] options = { { 0, -1, -2 }, { 0, 1, 2 } };
+//		for (int i = 1; i < 9; i++) {
+//			int a = i % 3;
+//			int b = i / 3;
+//			SortedSet<Byte> piece = new TreeSet<>();
+//			if (options[0][a] != 0) {
+//				piece.add(options[0][a]);
+//			}
+//			if (options[1][b] != 0) {
+//				piece.add(options[1][b]);
+//			}
+//			result.add(piece);
+//		}
+//		return result;
+//	}
 
 	@Override
 	public boolean isComplete() {

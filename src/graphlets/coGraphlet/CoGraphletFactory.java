@@ -1,4 +1,4 @@
-package coGraphlet;
+package graphlets.coGraphlet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class CoGraphletFactory extends AbstractGraphletFactory<CoGraphlet,Intege
 
 	@Override
 	public CoGraphlet toGraphlet(String s) {
-		return new CoGraphlet(s,nColors,isOrbitRep);
+		return new CoGraphlet(s,isOrbitRep);
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class CoGraphletFactory extends AbstractGraphletFactory<CoGraphlet,Intege
 
 
 	@Override
-	public List<Integer> edgeTypes() {
+	public List<Integer> getEdgeTypes() {
 		List<Integer> result = new ArrayList<>();
 		for (int i = 1; i < nColors+1; i++) {
 			result.add(i);
@@ -49,11 +49,17 @@ public class CoGraphletFactory extends AbstractGraphletFactory<CoGraphlet,Intege
 	@Override
 	public List<SortedSet<Integer>> edgeCombinations() {
 		List<SortedSet<Integer>> result = new ArrayList<>();
-		for(int i:edgeTypes()) {
+		for(int i:getEdgeTypes()) {
 			SortedSet<Integer>edge = new TreeSet<>();
 			edge.add(i);
 			result.add(edge);
 		}
 		return result;
+	}
+
+
+	@Override
+	protected String namePrefix() {
+		return "Co";
 	}
 }

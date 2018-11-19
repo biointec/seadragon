@@ -1,22 +1,21 @@
-package simpleGraph;
+package graphlets.simpleGraphlet;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class GraphletFactory extends graphletgeneration.AbstractGraphletFactory<Graphlet,Boolean> {
+public class GraphletFactory extends graphletgeneration.AbstractGraphletFactory<SimpleGraphlet,Boolean> {
 
 	private static final char[] characters = {'1'};
 	
 	public GraphletFactory(boolean isOrbitRep) {
 		super(isOrbitRep);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public Graphlet toGraphlet(String s) {
-		return new Graphlet(s, isOrbitRep);
+	public SimpleGraphlet toGraphlet(String s) {
+		return new SimpleGraphlet(s, isOrbitRep);
 	}
 
 	@Override
@@ -30,7 +29,7 @@ public class GraphletFactory extends graphletgeneration.AbstractGraphletFactory<
 	}
 	
 	@Override
-	public List<Boolean> edgeTypes() {
+	public List<Boolean> getEdgeTypes() {
 		List<Boolean> result = new ArrayList<>();
 		result.add(true);
 		return result;
@@ -39,8 +38,13 @@ public class GraphletFactory extends graphletgeneration.AbstractGraphletFactory<
 	@Override
 	public List<SortedSet<Boolean>> edgeCombinations() {
 		List<SortedSet<Boolean>> result = new ArrayList<>(1);
-		result.add(new TreeSet<>(edgeTypes()));
+		result.add(new TreeSet<>(getEdgeTypes()));
 		return result;
+	}
+
+	@Override
+	protected String namePrefix() {
+		return "";
 	}
 
 }

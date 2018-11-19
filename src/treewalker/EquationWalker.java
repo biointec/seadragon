@@ -26,22 +26,22 @@ import tree.GraphletTree;
 public class EquationWalker<T extends AbstractGraphlet<U>, U extends Comparable<U>>
 		extends TreeWalker<T, U> {
 
-	private SortedSet<Equation<T, U>> equations;
-	private SortedMap<String, List<Equation<T, U>>> equationsByRHS;
+	private SortedSet<Equation<T>> equations;
+	private SortedMap<String, List<Equation<T>>> equationsByRHS;
 	private SortedSet<String> largerGraphlets;
-	SortedMap<String, Integer> minus;
+	private SortedMap<String, Integer> minus;
 	private SortedMap<String, List<String>> lhs;
 	private SortedMap<String, List<Integer>> lhsFactors;
 	private SortedMap<String, Map<List<Set<Integer>>, String>> rhs;
-	private CommonsCounter<AbstractGraph<U>, U> commons;
+	private CommonsCounter<U> commons;
 	private boolean saving = true;
 
-	public EquationWalker(GraphletTree<T, U> tree, AbstractGraph<U> graph, Collection<Equation<T, U>> equations) {
+	public EquationWalker(GraphletTree<T, U> tree, AbstractGraph<U> graph, Collection<Equation<T>> equations) {
 		super(tree, graph);
 		this.equations = EquationSelecter.selectEquations(equations);
 		analyseEquations();
-		commons = new CommonsCounter<>(graph, tree.getOrder() + 1);
-		commons.recursiveCommons();
+		commons = new CommonsCounter<>(graph, tree.getOrder() + 1,tree.getFactory());
+//		commons.recursiveCommons();
 	}
 	
 	private void analyseTree() {
@@ -49,20 +49,15 @@ public class EquationWalker<T extends AbstractGraphlet<U>, U extends Comparable<
 		for (AddNodeNode<T, U> leaf : tree.getLeaves()) {
 			String rhsGraphlet = leaf.getRepresentation();
 			List<Integer> permutation = leaf.getCanonicalAutomorphism();
-			List<Integer> inversePermutation = new ArrayList<>();
-			for (int i = 0; i < permutation.size(); i++) {
-				inversePermutation.add(permutation.indexOf(i));
-			}
 			if (equationsByRHS.containsKey(rhsGraphlet)) {
 				Map<List<Set<Integer>>, String> commons = new HashMap<>();
-				for (Equation<T, U> equation : equationsByRHS.get(rhsGraphlet)) {
+				for (Equation<T> equation : equationsByRHS.get(rhsGraphlet)) {
 					for (List<Set<Integer>> term : equation.getCommons()) {
 						List<Set<Integer>> translatedTerm = new ArrayList<>();
 						for (Set<Integer> partTerm : term) {
 							Set<Integer> translatedPart = new TreeSet<>();
 							for (int i : partTerm) {
 								translatedPart.add(permutation.get(i));
-//								translatedPart.add(inversePermutation.get(i));
 							}
 							translatedTerm.add(translatedPart);
 						}
@@ -80,7 +75,7 @@ public class EquationWalker<T extends AbstractGraphlet<U>, U extends Comparable<
 		lhs = new TreeMap<>();
 		lhsFactors = new TreeMap<>();
 		minus = new TreeMap<>();
-		for (Equation<T, U> equation : equations) {
+		for (Equation<T> equation : equations) {
 			Iterator<String> lhsIterator = equation.getLhs().keySet().iterator();
 			String lhskey = lhsIterator.next();
 			List<String> terms = new ArrayList<>();
@@ -95,7 +90,7 @@ public class EquationWalker<T extends AbstractGraphlet<U>, U extends Comparable<
 			lhsFactors.put(lhskey, factors);
 			minus.put(lhskey, equation.getMinus());
 			String key = equation.getRhsGraphlet();
-			List<Equation<T, U>> thingy = equationsByRHS.get(key);
+			List<Equation<T>> thingy = equationsByRHS.get(key);
 			if (thingy == null) {
 				thingy = new ArrayList<>();
 				equationsByRHS.put(key, thingy);
@@ -123,7 +118,6 @@ public class EquationWalker<T extends AbstractGraphlet<U>, U extends Comparable<
 		if (saving) {
 			super.register(treeNode);
 			if (equationsByRHS.containsKey(canonical)) {
-//				System.out.println(equationsByRHS.get(canonical));
 				for (List<Set<Integer>> l : rhs.get(canonical).keySet()) {
 					List<SortedSet<Integer>> translation = new ArrayList<>();
 					for (Set<Integer> term : l) {

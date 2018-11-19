@@ -23,12 +23,10 @@ public class SingleGraphletWalker<T extends AbstractGraphlet<U>, U extends Compa
 	private T graphlet;
 	private List<String> path;
 	private int index = 0;
-	Set<List<Set<Integer>>> neighbours;
-	int minus;
+	private Set<List<Set<Integer>>> neighbours;
+	private int minus;
+	private CommonsCounter<U> commons;
 
-	private CommonsCounter<AbstractGraph<U>, U> commons;
-
-	
 	protected void solve() {
 		for (String s : results.keySet()) {
 			if (factors.containsKey(s) && factors.get(s) != 1) {
@@ -36,15 +34,15 @@ public class SingleGraphletWalker<T extends AbstractGraphlet<U>, U extends Compa
 			}
 		}
 	}
-	
+
 	public SingleGraphletWalker(GraphletTree<T, U> tree, AbstractGraph<U> graph, T graphlet,
 			Set<List<Set<Integer>>> neighbours, int minus) {
 		super(tree, graph);
 		this.graphlet = graphlet;
 		this.neighbours = neighbours;
 		analyseTree();
-		commons = new CommonsCounter<>(graph, tree.getOrder() + 1);
-		commons.recursiveCommons();
+		commons = new CommonsCounter<>(graph, tree.getOrder() + 1, tree.getFactory());
+		// commons.recursiveCommons();
 		this.minus = minus;
 	}
 
@@ -80,7 +78,7 @@ public class SingleGraphletWalker<T extends AbstractGraphlet<U>, U extends Compa
 			for (Set<Integer> partTerm : l) {
 				Set<Integer> translatedPart = new TreeSet<>();
 				for (int i : partTerm) {
-//					translatedPart.add(inversePermutation.get(i));
+					// translatedPart.add(inversePermutation.get(i));
 					translatedPart.add(permutation.get(i));
 				}
 				translatedTerm.add(translatedPart);

@@ -2,7 +2,6 @@ package graphlets;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,10 +11,13 @@ import java.util.TreeSet;
 import graphletgeneration.Permutator;
 
 /**
+ * Abstract class representing graphlets of any kind.
  * 
- * @author imelcken
+ * @author Ine Melckenbeeck
  *
  * @param <T>
+ *            The type that is used to identify the different edge types that
+ *            can be added to graphlets of this type.
  */
 public abstract class AbstractGraphlet<T extends Comparable<T>> extends AbstractGraph<T>
 		implements Serializable, Comparable<AbstractGraphlet<T>> {
@@ -30,39 +32,85 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 	private static final int drawheight = 841;
 
 	protected boolean ready = false;
-	protected Set<String> representations;
+	protected boolean isOrbitRep;
 	protected List<List<Integer>> automorphisms;
 	protected List<Integer> canonicalAutomorphism;
-
-	public List<Integer> getCanonicalAutomorphism() {
-		if(canonicalAutomorphism==null) {
-			permute();
-		}
-		return canonicalAutomorphism;
-	}
-
 	protected String canonical;
 	protected List<SortedSet<Integer>> orbits;
-	protected boolean isOrbitRep;
 	protected List<SortedSet<Integer>> cosetreps;
 
 	public AbstractGraphlet(boolean isOrbitRep) {
 		this.isOrbitRep = isOrbitRep;
 	}
 
-	public abstract void swap(int a, int b);
-
-	public abstract String representation();
-
-	public abstract StringBuilder toPS();
-
-	public int getSymmetry() {
-		if (!ready) {
-			permute();
-		}
-		return automorphisms.size();
+	@Override
+	public void addNode() {
+		super.addNode();
+		ready = false;
 	}
 
+	@Override
+	public void removeNode(int node) throws IllegalGraphActionException {
+		super.removeNode(node);
+		ready = false;
+	}
+
+	@Override
+	public void addEdge(int node1, int node2, T edgeTypes) throws IllegalGraphActionException {
+		super.addEdge(node1, node2, edgeTypes);
+		ready = false;
+	}
+
+	@Override
+	public void removeEdge(int node1, int node2) throws IllegalGraphActionException {
+		super.removeEdge(node1, node2);
+		ready = false;
+	}
+
+	@Override
+	public void removeEdge(int node1, int node2, T edgeTypes) throws IllegalGraphActionException {
+		super.removeEdge(node1, node2, edgeTypes);
+		ready = false;
+	}
+
+	/**
+	 * <p>
+	 * Swaps the indices of the two given nodes. All edges to or from a, go to or
+	 * from b after the swap and vice versa.
+	 * </p>
+	 * <p>
+	 * Used in the permutation of the nodes during symmetry calculation.
+	 * 
+	 * @param node1
+	 *            The first node to be swapped.
+	 * @param node2
+	 *            The second node to be swapped.
+	 */
+	public abstract void swap(int node1, int node2);
+
+	public List<Integer> getCanonicalAutomorphism() {
+		if (canonicalAutomorphism == null) {
+			permute();
+		}
+		return canonicalAutomorphism;
+	}
+
+	/**
+	 * Transforms the graphlet in a string representation that can be used to
+	 * reconstruct the graphlet. This representation should be a listing of the
+	 * graphlet's edges in some predetermined order, with the character '0'
+	 * referring to the absence of an edge.
+	 * 
+	 * @return This graphlet's string representation.
+	 */
+	public abstract String representation();
+
+	/**
+	 * Returns the graphlet's canonical representation, i.e. the lowest possible
+	 * representation of this graphlet.
+	 * 
+	 * @return
+	 */
 	public String canonical() {
 		if (!ready) {
 			permute();
@@ -70,10 +118,55 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 		return canonical;
 	}
 
+	/**
+	 * Returns <code>true</code> if the graphlet is in its canonical form, i.e. its
+	 * representation is the canonical representation.
+	 * 
+	 * @return <code>true</code> if the graphlet is in its canonical form.
+	 */
+	public boolean isCanonical() {
+		if (!ready) {
+			return permute();
+		} else {
+			return canonical.equals(representation());
+		}
+	}
+
+	/**
+	 * Write the graphlet in PostScript format for automatic visualisation.
+	 * 
+	 * @return a StringBuilder containing the graphlet in PS format.
+	 */
+	public abstract StringBuilder toPS();
+
+	/**
+	 * Returns the graphlet's symmetry factor, i.e. its number of automorphisms.
+	 * 
+	 * @return the graphlet's symmetry factor.
+	 */
+	public int getSymmetry() {
+		if (!ready) {
+			permute();
+		}
+		return automorphisms.size();
+	}
+
+	/**
+	 * Names this graphlet type, for use in export files.
+	 * 
+	 * @return The graphlet type's name.
+	 */
 	public String name() {
 		return (isOrbitRep ? "OrbitRep" : "Graphlet");
 	}
-	
+
+	/**
+	 * Returns <code>true<\code> if this graphlet is an orbit representative. Orbit
+	 * representatives' 0th node is never permuted, making each orbit representative
+	 * equivalent with one orbit of its base graphlet.
+	 * 
+	 * @return <code>true<\code> if this graphlet is an orbit representative.
+	 */
 	public boolean isOrbitRep() {
 		return isOrbitRep;
 	}
@@ -105,32 +198,20 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 			return false;
 		if (size != other.size)
 			return false;
-		if (canonical == null) 
+		if (canonical == null)
 			permute();
 		if (!canonical.equals(other.canonical))
 			return false;
 		return true;
 	}
 
-	public boolean permute() {
-		cosetreps = null;
-		boolean b;
-		if (isOrbitRep) {
-			b= permuteExcept(0);
-		}else {
-			b=permuteExcept(new TreeSet<Integer>());
-		}
-		ready = true;
-		return b;
-	}
-
-	public boolean permuteExcept(int i) {
-		SortedSet<Integer> l = new TreeSet<>();
-		l.add(i);
-		return permuteExcept(l);
-	}
-
-	public boolean permuteExcept(Collection<Integer> nodes) {
+	/**
+	 * Permute the graphlet's nodes, calculating its automorphisms, orbits and
+	 * canonical form.
+	 * 
+	 * @return <code>true</code> if this graphlet is canonical.
+	 */
+	private boolean permute() {
 		automorphisms = new ArrayList<>();
 		canonical = this.representation();
 		boolean result = true;
@@ -143,24 +224,17 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 		}
 		canonicalAutomorphism = new ArrayList<>(current);
 		automorphisms.add(new ArrayList<>(current));
-		representations = new TreeSet<>();
-		representations.add(canonical);
-		if (order - nodes.size() > 1) {
-			Permutator p = new Permutator(order - nodes.size());
-			List<Integer> translation = new ArrayList<Integer>(order - nodes.size());
-			for (int i = 0; i < order; i++) {
-				if (!nodes.contains(i))
-					translation.add(i);
-			}
+		int o = (isOrbitRep ? 1 : 0);
+		if (order - o > 1) {
+			Permutator p = new Permutator(order - o);
 			String rep = canonical;
 			int index = p.next();
 			while (index >= 0) {
-				swap(translation.get(index), translation.get(index + 1));
-				int reserve = current.get(translation.get(index));
-				current.set(translation.get(index), current.get(translation.get(index + 1)));
-				current.set(translation.get(index + 1), reserve);
+				swap(index + o, index + o + 1);
+				int reserve = current.get(index + o);
+				current.set(index + o, current.get(index + o + 1));
+				current.set(index + o + 1, reserve);
 				String s = this.representation();
-				representations.add(s);
 				if (s.equals(rep)) {
 					for (int i = 0; i < order; i++) {
 						orbits.get(i).add(current.get(i));
@@ -174,11 +248,18 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 				}
 				index = p.next();
 			}
-			swap(translation.get(0), translation.get(1));
+			swap(o, o + 1);
 		}
 		return result;
 	}
 
+	/**
+	 * Returns a Set containing the graphlet's automorphism orbits. These are the
+	 * sets of nodes that can be mapped onto each other by any of the graphlet's
+	 * automorphisms.
+	 * 
+	 * @return the graphlet's orbits.
+	 */
 	public Set<SortedSet<Integer>> getOrbits() {
 		if (!ready)
 			permute();
@@ -187,27 +268,13 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 		return result;
 	}
 
-	public Set<Set<Integer>> getOrbitOf(Set<Integer> nodes) {
-		if (!ready)
-			permute();
-		Set<Set<Integer>> result = new HashSet<>();
-		for (List<Integer> auto : automorphisms) {
-			Set<Integer> orbit = new TreeSet<>();
-			for (int i : nodes) {
-				orbit.add(auto.get(i));
-			}
-			result.add(orbit);
-		}
-		return result;
-	}
-	
 	public Set<List<Set<Integer>>> getOrbitOf(List<Set<Integer>> nodes) {
 		if (!ready)
 			permute();
 		Set<List<Set<Integer>>> result = new HashSet<>();
 		for (List<Integer> auto : automorphisms) {
 			List<Set<Integer>> sub = new ArrayList<>();
-			for(Set<Integer> set:nodes) {
+			for (Set<Integer> set : nodes) {
 				Set<Integer> orbit = new TreeSet<>();
 				for (int i : set) {
 					orbit.add(auto.get(i));
@@ -219,15 +286,70 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 		return result;
 	}
 
+	/**
+	 * Returns the orbit of the given node.
+	 * 
+	 * @param node
+	 *            the node whose orbit is given.
+	 * @return the orbit of the given node.
+	 */
 	public SortedSet<Integer> getOrbitOf(int node) {
 		if (!ready)
 			permute();
 		return orbits.get(node);
 	}
 
+	@Override
+	public int compareTo(AbstractGraphlet<T> graphlet) {
+		if (canonical == null)
+			permute();
+		if (graphlet.canonical == null)
+			graphlet.permute();
+		return new CanonicalComparator().compare(canonical, graphlet.canonical);
+	}
+
+	/**
+	 * Returns the coset representatives of this graphlet's automorphisms. These are
+	 * used to impose symmetry-breaking constraints on the graphlet's nodes, which
+	 * is used to avoid counting one instance of a graphlet multiple times.
+	 * 
+	 * @return the coset representatives of this graphlet's automorphisms.
+	 */
+	public List<SortedSet<Integer>> getCosetReps() {
+		if (!ready)
+			permute();
+		if (getSymmetry() == 1) {
+			return orbits;
+		} else if (cosetreps == null) {
+			List<List<Integer>> automorphismCopy = new ArrayList<>(automorphisms);
+			cosetreps = new ArrayList<>();
+			for (int i = 0; i < order; i++) {
+				cosetreps.add(new TreeSet<>());
+				for (int j = 0; j < automorphismCopy.size(); j++) {
+					cosetreps.get(i).add(automorphismCopy.get(j).get(i));
+					if (automorphismCopy.get(j).get(i) != i) {
+						automorphismCopy.remove(j);
+						j--;
+					}
+				}
+			}
+		}
+		return cosetreps;
+	}
+
+	/**
+	 * Returns the automorphisms of this graphlet.
+	 * 
+	 * @return the automorphisms of this graphlet.
+	 */
+	public List<List<Integer>> getAutomorphisms() {
+		if (!ready)
+			permute();
+		return automorphisms;
+	}
+
 	protected StringBuilder drawNodes() {
 		StringBuilder builder = new StringBuilder();
-
 		for (int i = 0; i < order; i++) {
 			builder.append("newpath\n");
 			builder.append(x(i, 0) + " " + y(i, 0) + " " + 5 + " " + 0 + " " + 360 + " arc\n");
@@ -237,7 +359,6 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 				builder.append("grestore\n");
 				builder.append("fill\n");
 			}
-
 			builder.append(x(i, drawsize) + " " + y(i, drawsize) + " moveto\n");
 			builder.append("(" + i + ") show\n");
 		}
@@ -272,38 +393,4 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 		return builder;
 	}
 
-	@Override
-	public int compareTo(AbstractGraphlet<T> g) {
-		if (canonical == null)
-			permute();
-		if (g.canonical == null)
-			g.permute();
-		return new CanonicalComparator().compare(canonical, g.canonical);
-	}
-
-	public List<SortedSet<Integer>> cosetreps() {
-		if (!ready)
-			permute();
-		if (getSymmetry() == 1) {
-			return orbits;
-		} else if (cosetreps == null) {
-			List<List<Integer>> automorphismCopy = new ArrayList<>(automorphisms);
-			cosetreps = new ArrayList<>();
-			for (int i = 0; i < order; i++) {
-				cosetreps.add(new TreeSet<>());
-				for (int j = 0; j < automorphismCopy.size(); j++) {
-					cosetreps.get(i).add(automorphismCopy.get(j).get(i));
-					if (automorphismCopy.get(j).get(i) != i) {
-						automorphismCopy.remove(j);
-						j--;
-					}
-				}
-			}
-		}
-		return cosetreps;
-	}
-
-	public List<List<Integer>> getAutomorphisms() {
-		return automorphisms;
-	}
 }

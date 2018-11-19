@@ -1,4 +1,4 @@
-package diGraphlet;
+package graphlets.diGraphlet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class DiGraphletFactory extends AbstractGraphletFactory<DiGraphlet,Boolea
 	}
 
 	@Override
-	public List<Boolean> edgeTypes() {
+	public List<Boolean> getEdgeTypes() {
 		List<Boolean> result = new ArrayList<>();
 		result.add(false);
 		result.add(true);
@@ -53,5 +53,10 @@ public class DiGraphletFactory extends AbstractGraphletFactory<DiGraphlet,Boolea
 		result.add(a);
 		return result;
 
+	}
+
+	@Override
+	protected String namePrefix() {
+		return "Di";
 	}
 }

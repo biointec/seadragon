@@ -13,22 +13,24 @@ public class GraphletTree<T extends AbstractGraphlet<U>, U extends Comparable<U>
 	 * 
 	 */
 	private static final long serialVersionUID = 971133459606523849L;
-	private List<U> edgeTypes;
+//	private List<U> edgeTypes;
 	private AddNodeNode<T,U> root;
 	private List<AddNodeNode<T,U>> leaves;
 	private int order;
 	private boolean isOrbitRep;
+	private AbstractGraphletFactory<T,U> factory;
 
 	
 	public GraphletTree(AbstractGraphletFactory<T,U> gf, int order) {
-		T root = gf.emptyGraphlet();
-		edgeTypes = gf.edgeTypes();
+		T root = gf.oneNodeGraphlet();
+//		edgeTypes = gf.edgeTypes();
 		leaves = new ArrayList<>();
 		System.out.println(root);
 		this.root=new AddNodeNode<T,U>(null,root);
 		this.root.tree=this;
 		this.order=order;
 		isOrbitRep = root.isOrbitRep();
+		factory = gf;
 	}
 	
 	public boolean isOrbitRep() {
@@ -46,10 +48,12 @@ public class GraphletTree<T extends AbstractGraphlet<U>, U extends Comparable<U>
 		return leaves;
 	}
 	
+	public AbstractGraphletFactory<T,U> getFactory(){
+		return factory;
+	}
 	
 	public List<U> getEdgeTypes() {
-		ArrayList<U> result = new ArrayList<>(edgeTypes.size());
-		result.addAll(edgeTypes);
+		ArrayList<U> result = new ArrayList<>(factory.getEdgeTypes());
 		return result;
 	}
 

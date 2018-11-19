@@ -1,4 +1,4 @@
-package diGraphlet;
+package graphlets.diGraphlet;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,11 +16,19 @@ import java.util.TreeSet;
 import graphlets.AbstractGraph;
 import graphlets.IllegalGraphActionException;
 
+/**
+ * Simple directed graph implementation of AbstractGraph. In this graph, double edges may exist only if they have opposite direction.
+ * @author imelcken
+ *
+ */
 public class DiGraph extends AbstractGraph<Boolean> {
 
 	private List<SortedSet<Integer>> arcs;
 	private List<SortedSet<Integer>> invertedArcs;
 	
+	/**
+	 * 
+	 */
 	public DiGraph() {
 		arcs = new ArrayList<>();
 		invertedArcs = new ArrayList<>();
@@ -88,21 +96,21 @@ public class DiGraph extends AbstractGraph<Boolean> {
 //	}
 
 	@Override
-	public void addNode() {
-		order++;
+	public void addNodeInternal() {
+//		order++;
 		arcs.add(new TreeSet<Integer>());
 		invertedArcs.add(new TreeSet<Integer>());
 
 	}
 
 	@Override
-	public void removeNode(int node) throws IllegalGraphActionException {
+	public void removeNodeInternal(int node) throws IllegalGraphActionException {
 		checkNode(node);
 		arcs.remove(node);
 		invertedArcs.remove(node);
 		for (SortedSet<Integer> neighbours : arcs) {
 			if (neighbours.remove(node)) {
-				size--;
+//				size--;
 			}
 			for (int i : neighbours) {
 				if (i > node) {
@@ -113,7 +121,7 @@ public class DiGraph extends AbstractGraph<Boolean> {
 		}
 		for (SortedSet<Integer> neighbours : invertedArcs) {
 			if (neighbours.remove(node)) {
-				size--;
+//				size--;
 			}
 			for (int i : neighbours) {
 				if (i > node) {
@@ -122,12 +130,12 @@ public class DiGraph extends AbstractGraph<Boolean> {
 				}
 			}
 		}
-		order--;
+//		order--;
 
 	}
 
 	@Override
-	public void addEdge(int node1, int node2, Boolean type) throws IllegalGraphActionException {
+	public void addEdgeInternal(int node1, int node2, Boolean type) throws IllegalGraphActionException {
 		checkNode(node1);
 		checkNode(node2);
 		checkLoop(node1, node2);
@@ -139,12 +147,12 @@ public class DiGraph extends AbstractGraph<Boolean> {
 		if (!arcs.get(node1).add(node2) || !invertedArcs.get(node2).add(node1)) {
 			throw new IllegalGraphActionException("No double edges allowed");
 		}
-		size++;
+//		size++;
 
 	}
 
 	@Override
-	public void removeEdge(int node1, int node2) throws IllegalGraphActionException {
+	public void removeEdgeInternal(int node1, int node2) throws IllegalGraphActionException {
 		checkNode(node1);
 		checkNode(node2);
 		checkEdge(node1, node2);
@@ -152,11 +160,11 @@ public class DiGraph extends AbstractGraph<Boolean> {
 		arcs.get(node2).remove(node1);
 		invertedArcs.get(node1).remove(node2);
 		invertedArcs.get(node2).remove(node1);
-		size--;
+//		size--;
 	}
 
 	@Override
-	public void removeEdge(int node1, int node2, Boolean type) throws IllegalGraphActionException {
+	public void removeEdgeInternal(int node1, int node2, Boolean type) throws IllegalGraphActionException {
 		checkNode(node1);
 		checkNode(node2);
 		checkEdge(node1, node2);
@@ -166,7 +174,7 @@ public class DiGraph extends AbstractGraph<Boolean> {
 			node1 = reserve;
 		}
 		if (arcs.get(node1).remove(node2) && invertedArcs.get(node2).remove(node1)) {
-			size--;
+//			size--;
 		} else {
 			throw new IllegalGraphActionException("No arc from node " + node1 + " to node " + node2);
 		}
@@ -217,29 +225,29 @@ public class DiGraph extends AbstractGraph<Boolean> {
 		return (double) size / (order * (order - 1.));
 	}
 
-	@Override
-	public List<Boolean> edgeTypes() {
-		List<Boolean> result = new ArrayList<>();
-		result.add(false);
-		result.add(true);
-		return result;
-	}
-
-	@Override
-	public List<SortedSet<Boolean>> edgeCombinations() {
-		List<SortedSet<Boolean>> result = new ArrayList<>();
-		SortedSet<Boolean> a = new TreeSet<Boolean>();
-		a.add(true);
-		result.add(a);
-		a = new TreeSet<Boolean>();
-		a.add(false);
-		result.add(a);
-		a = new TreeSet<Boolean>();
-		a.add(true);
-		a.add(false);
-		result.add(a);
-		return result;
-	}
+//	@Override
+//	public List<Boolean> edgeTypes() {
+//		List<Boolean> result = new ArrayList<>();
+//		result.add(false);
+//		result.add(true);
+//		return result;
+//	}
+//
+//	@Override
+//	public List<SortedSet<Boolean>> edgeCombinations() {
+//		List<SortedSet<Boolean>> result = new ArrayList<>();
+//		SortedSet<Boolean> a = new TreeSet<Boolean>();
+//		a.add(true);
+//		result.add(a);
+//		a = new TreeSet<Boolean>();
+//		a.add(false);
+//		result.add(a);
+//		a = new TreeSet<Boolean>();
+//		a.add(true);
+//		a.add(false);
+//		result.add(a);
+//		return result;
+//	}
 
 	@Override
 	public boolean isComplete() {

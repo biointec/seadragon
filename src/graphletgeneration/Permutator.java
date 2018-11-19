@@ -24,9 +24,13 @@ package graphletgeneration;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Steinhaus-Johnson-Trotter algorithm with speedup by Shimon Even, iterative.
+ * 
+ * @author Pieter Audenaert
+ *
+ */
 public class Permutator {
-	// Steinhaus�Johnson�Trotter algorithm with speedup by Shimon Even,
-	// iterative
 	private int[] values; // Values to permute
 	private byte[] signs; // Corresponding signs
 
@@ -39,8 +43,8 @@ public class Permutator {
 		}
 		signs[0] = 0;
 	}
-	
-	public void reset(){
+
+	public void reset() {
 		for (int i = 0; i < signs.length; i++) {
 			values[i] = i;
 			signs[i] = -1;
@@ -103,7 +107,7 @@ public class Permutator {
 			l.set(i, l.get(i + 1));
 			l.set(i + 1, reserve);
 			System.out.println(l);
-			i=p.next();
+			i = p.next();
 		}
 	}
 }

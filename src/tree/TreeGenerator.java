@@ -7,10 +7,10 @@ import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
-import genGraphlet.GenGraphletFactory;
 import graphletgeneration.AbstractGraphletFactory;
 import graphlets.AbstractGraphlet;
 import graphlets.IllegalGraphActionException;
+import graphlets.genGraphlet.GenGraphletFactory;
 
 /**
  * Class that contains all data and algorithms needed to generate a
@@ -56,7 +56,7 @@ public class TreeGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U
 		currentNodes.add(rootNode);
 		currentEdges = new Stack<>();
 		graphlets = new Stack<T>();
-		graphlets.push(f.emptyGraphlet());
+		graphlets.push(f.oneNodeGraphlet());
 		edgeTypes = tree.getEdgeTypes();
 		usedGraphlets = new TreeSet<>();
 		this.order = order;
@@ -85,7 +85,7 @@ public class TreeGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U
 	 * ConditionNodes before the current AddNodeNode.
 	 */
 	private void breakSymmetry() {
-		List<SortedSet<Integer>> cosetreps = graphlets.peek().cosetreps();
+		List<SortedSet<Integer>> cosetreps = graphlets.peek().getCosetReps();
 		for (int i = 0; i < order; i++) {
 			for (int j : cosetreps.get(i)) {
 				if (i != j) {

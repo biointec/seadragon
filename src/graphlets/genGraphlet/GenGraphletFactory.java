@@ -1,4 +1,4 @@
-package genGraphlet;
+package graphlets.genGraphlet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class GenGraphletFactory extends AbstractGraphletFactory<GenGraphlet,Byte
 	}
 
 	@Override
-	public List<Byte> edgeTypes() {
+	public List<Byte> getEdgeTypes() {
 		List<Byte> result = new ArrayList<>();
 		result.add((byte) 1);
 		result.add((byte) -1);
@@ -58,5 +58,10 @@ public class GenGraphletFactory extends AbstractGraphletFactory<GenGraphlet,Byte
 			result.add(piece);
 		}
 		return result;
+	}
+
+	@Override
+	protected String namePrefix() {
+		return "Gen";
 	}
 }

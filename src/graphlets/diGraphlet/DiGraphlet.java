@@ -1,10 +1,7 @@
-package diGraphlet;
+package graphlets.diGraphlet;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -14,6 +11,19 @@ import java.util.TreeSet;
 import graphlets.AbstractGraphlet;
 import graphlets.IllegalGraphActionException;
 
+/**
+ * Implementation of AbstractGraphlet for a simple, directed graphlet. In this
+ * graphlet, two parallel edges may exist only if they have opposite direction.
+ * The graphlets are internally represented as an adjacency list.
+ * 
+ * Booleans are used as edge type. If an edge between node1 and node2 has
+ * <code>true</code> as edge type, it means the edge runs from node1 to node2.
+ * Vice versa, if its edge type is <code>false</code>, the edge runs from node2
+ * to node1.
+ * 
+ * @author Ine Melckenbeeck
+ *
+ */
 public class DiGraphlet extends AbstractGraphlet<Boolean> {
 
 	/**
@@ -22,32 +32,28 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 	private static final long serialVersionUID = 7721854624631535947L;
 	private List<SortedSet<Integer>> arcs;
 
-	public DiGraphlet(String matrix, boolean isOrbitRep) {
+	/**
+	 * Create a directed graphlet with the given representation.
+	 * 
+	 * @param representation
+	 *            The representation of the new graphlet.
+	 * @param isOrbitRep
+	 */
+	public DiGraphlet(String representation, boolean isOrbitRep) {
 		super(isOrbitRep);
-		order = Math.round((1f + (float) Math.sqrt(1f + 4f * matrix.length())) / 2f);
+		order = Math.round((1f + (float) Math.sqrt(1f + 4f * representation.length())) / 2f);
 		size = 0;
 		arcs = new ArrayList<>();
 		for (int i = 0; i < order; i++) {
 			arcs.add(new TreeSet<>());
 			for (int j = 0; j < order - 1; j++) {
 				int jj = j >= i ? j + 1 : j;
-				if (matrix.charAt(i * (order - 1) + j)!='0') {
+				if (representation.charAt(i * (order - 1) + j) != '0') {
 					arcs.get(i).add(jj);
 					++size;
 				}
 			}
 		}
-	}
-
-	public DiGraphlet copy() {
-		DiGraphlet result = new DiGraphlet(representation(), isOrbitRep);
-		result.representations = representations;
-		result.automorphisms = automorphisms;
-		result.canonical = canonical;
-		result.order = order;
-		result.size = size;
-		result.orbits = orbits;
-		return result;
 	}
 
 	@Override
@@ -70,6 +76,7 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 		arcs.set(b, reserve);
 	}
 
+	@Override
 	public String toString() {
 		return arcs.toString();
 	}
@@ -145,15 +152,15 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 			for (int j : arcs.get(i)) {
 				while (index < j) {
 					if (index != i)
-						result+=0;
+						result += 0;
 					index++;
 				}
-				result+=1;
+				result += 1;
 				index++;
 			}
 			while (index < order) {
 				if (index != i)
-					result+=0;
+					result += 0;
 				index++;
 			}
 
@@ -162,37 +169,8 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 	}
 
 	@Override
-	public void addNode() {
-		ready = false;
-		order++;
+	public void addNodeInternal() {
 		arcs.add(new TreeSet<>());
-	}
-
-
-
-	@Override
-	public List<Boolean> edgeTypes() {
-		List<Boolean> result = new ArrayList<>();
-		result.add(false);
-		result.add(true);
-		return result;
-	}
-
-	@Override
-	public List<SortedSet<Boolean>> edgeCombinations() {
-		List<SortedSet<Boolean>> result = new ArrayList<>();
-		SortedSet<Boolean> a = new TreeSet<Boolean>();
-		a.add(true);
-		result.add(a);
-		a = new TreeSet<Boolean>();
-		a.add(false);
-		result.add(a);
-		a = new TreeSet<Boolean>();
-		a.add(true);
-		a.add(false);
-		result.add(a);
-		return result;
-
 	}
 
 	@Override
@@ -242,15 +220,16 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 	}
 
 	@Override
-	public void removeNode(int i) throws IllegalGraphActionException {
+	public void removeNodeInternal(int i) throws IllegalGraphActionException {
+		checkNode(i);
 		ready = false;
-		size-=arcs.get(i).size();
+		size -= arcs.get(i).size();
 		arcs.remove(i);
-		order--;
-		for (int j = 0; j < order; j++) {
-			if(arcs.get(j).remove(i)){
-			size--;}
-			for (int k = i + 1; k < order; k++) {
+		// order--;
+		for (int j = 0; j < order - 1; j++) {
+			if (arcs.get(j).remove(i)) {
+			}
+			for (int k = i + 1; k < order - 1; k++) {
 				if (arcs.get(j).remove(k)) {
 					arcs.get(j).add(k - 1);
 				}
@@ -260,15 +239,12 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 	}
 
 	@Override
-	public void removeEdge(int i, int j) throws IllegalGraphActionException {
-		ready = false;
+	public void removeEdgeInternal(int i, int j) throws IllegalGraphActionException {
 		checkNode(i);
 		checkNode(j);
 		checkEdge(i, j);
-		if (arcs.get(i).remove(j))
-			size--;
-		if (arcs.get(j).remove(i))
-			size--;
+		arcs.get(i).remove(j);
+		arcs.get(j).remove(i);
 	}
 
 	@Override
@@ -283,46 +259,41 @@ public class DiGraphlet extends AbstractGraphlet<Boolean> {
 		return result;
 	}
 
-	
 	@Override
-	public void addEdge(int i, int j, Boolean status) throws IllegalGraphActionException {
-		ready = false;
+	public void addEdgeInternal(int i, int j, Boolean edgeType) throws IllegalGraphActionException {
 		checkNode(i);
 		checkNode(j);
 		if (i == j) {
 			throw new IllegalGraphActionException("No self-loops allowed");
-		} else if (status ? arcs.get(i).contains(j) : arcs.get(j).contains(i)) {
+		} else if (edgeType ? arcs.get(i).contains(j) : arcs.get(j).contains(i)) {
 			throw new IllegalGraphActionException("No double edges allowed between nodes " + i + " and " + j);
-		} else if (status) {
+		} else if (edgeType) {
 			arcs.get(i).add(j);
-			size++;
 		} else {
 			arcs.get(j).add(i);
-			size++;
 		}
 	}
 
 	@Override
-	public void removeEdge(int i, int j, Boolean type) throws IllegalGraphActionException {
+	public void removeEdgeInternal(int i, int j, Boolean type) throws IllegalGraphActionException {
 		checkNode(i);
 		checkNode(j);
-		if(!getEdges(i,j).contains(type)) {
-			throw new IllegalGraphActionException("No edge present from "+(type?i:j) +" to "+(type?j:i));
-		}else if(type){
-			assert(arcs.get(i).remove(j)); 
-		}else {
-			assert(arcs.get(j).remove(i));
+		if (!getEdges(i, j).contains(type)) {
+			throw new IllegalGraphActionException("No edge present from " + (type ? i : j) + " to " + (type ? j : i));
+		} else if (type) {
+			assert (arcs.get(i).remove(j));
+		} else {
+			assert (arcs.get(j).remove(i));
 		}
-		size--;
 	}
-	
+
+	@Override
 	public boolean isComplete() {
-//		System.out.println(canonical());
-//		System.out.println(order+" "+size);
 		return size == order * (order - 1);
 	}
+
 	@Override
 	public SortedSet<Integer> getInvertedNeighbours(int node, Boolean condition) {
-		return getNeighbours(node,!condition);
+		return getNeighbours(node, !condition);
 	}
 }

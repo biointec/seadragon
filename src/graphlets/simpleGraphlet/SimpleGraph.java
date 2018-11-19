@@ -1,13 +1,10 @@
-package simpleGraph;
+package graphlets.simpleGraphlet;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -16,17 +13,35 @@ import java.util.TreeSet;
 import graphlets.AbstractGraph;
 import graphlets.IllegalGraphActionException;
 
-public class Graph extends AbstractGraph<Boolean> {
+/**
+ * Simple, undirected graph implementation of the AbstractGraph class. The graph
+ * is implemented as an adjacency list.
+ * 
+ * @author Ine Melckenbeeck
+ *
+ */
+public class SimpleGraph extends AbstractGraph<Boolean> {
 
 	private List<SortedSet<Integer>> adjacency;
 
-	public Graph() {
+	/**
+	 * Creates an empty simple graph. 0 nodes, 0 edges.
+	 */
+	public SimpleGraph() {
 		adjacency = new ArrayList<>();
+		order = 0;
+		size = 0;
 	}
 
-	public static Graph readGraph(String filename) {
+	/**
+	 * Read a graph in from file. I should program this somewhere else.
+	 * 
+	 * @param filename
+	 * @return
+	 */
+	public static SimpleGraph readGraph(String filename) {
 		File file = new File(filename);
-		Graph result = new Graph();
+		SimpleGraph result = new SimpleGraph();
 		try {
 			Scanner scanner = new Scanner(file);
 			boolean started = false;
@@ -59,37 +74,17 @@ public class Graph extends AbstractGraph<Boolean> {
 		return result;
 	}
 
-	// @Override
-	// public boolean isConnected() {
-	// Deque<Integer> queue = new LinkedList<>();
-	// queue.add(0);
-	// Set<Integer> check = new TreeSet<>();
-	// check.add(0);
-	// while (!queue.isEmpty()) {
-	// int node = queue.poll();
-	// for (int neighbour : adjacency.get(node)) {
-	// if (check.add(neighbour)) {
-	// queue.addLast(neighbour);
-	// }
-	// }
-	// }
-	// return check.size() == order;
-	// }
-
 	@Override
-	public void addNode() {
-		order++;
+	public void addNodeInternal() {
 		adjacency.add(new TreeSet<>());
 	}
 
 	@Override
-	public void removeNode(int node) throws IllegalGraphActionException {
+	public void removeNodeInternal(int node) throws IllegalGraphActionException {
 		checkNode(node);
 		adjacency.remove(node);
 		for (SortedSet<Integer> neighbours : adjacency) {
-			if (neighbours.remove(node)) {
-				size--;
-			}
+			neighbours.remove(node);
 			for (int i : neighbours) {
 				if (i > node) {
 					neighbours.remove(i);
@@ -97,43 +92,35 @@ public class Graph extends AbstractGraph<Boolean> {
 				}
 			}
 		}
-		order--;
-
 	}
 
 	@Override
-	public void addEdge(int node1, int node2, Boolean type) throws IllegalGraphActionException {
+	public void addEdgeInternal(int node1, int node2, Boolean type) throws IllegalGraphActionException {
 		checkNode(node1);
 		checkNode(node2);
 		checkLoop(node1, node2);
 		if (!adjacency.get(node1).add(node2) || !adjacency.get(node2).add(node1)) {
 			throw new IllegalGraphActionException("No double edges allowed");
 		}
-		size++;
-
 	}
 
 	@Override
-	public void removeEdge(int node1, int node2) throws IllegalGraphActionException {
+	public void removeEdgeInternal(int node1, int node2) throws IllegalGraphActionException {
 		checkNode(node1);
 		checkNode(node2);
 		checkEdge(node1, node2);
-		if (adjacency.get(node1).remove(node2) && adjacency.get(node2).remove(node1)) {
-			size--;
-		}
-
+		adjacency.get(node1).remove(node2);
+		adjacency.get(node2).remove(node1);
 	}
 
 	@Override
-	public void removeEdge(int node1, int node2, Boolean type) throws IllegalGraphActionException {
-
+	public void removeEdgeInternal(int node1, int node2, Boolean type) throws IllegalGraphActionException {
 		checkNode(node1);
 		checkNode(node2);
 		checkEdge(node1, node2);
-		if (adjacency.get(node1).remove(node2) && adjacency.get(node2).remove(node1)) {
-			size--;
-		}else {
-			throw new IllegalGraphActionException("No arc from node "+(type?node1:node2)+" to node "+ (type?node2:node1));
+		if (!adjacency.get(node1).remove(node2) || !adjacency.get(node2).remove(node1)) {
+			throw new IllegalGraphActionException(
+					"No arc from node " + (type ? node1 : node2) + " to node " + (type ? node2 : node1));
 		}
 
 	}
@@ -171,30 +158,17 @@ public class Graph extends AbstractGraph<Boolean> {
 	}
 
 	@Override
-	public List<Boolean> edgeTypes() {
-		List<Boolean> result = new ArrayList<>();
-		result.add(true);
-		return result;
-	}
-
-	@Override
-	public List<SortedSet<Boolean>> edgeCombinations() {
-		List<SortedSet<Boolean>> result = new ArrayList<>();
-		result.add(new TreeSet<>(edgeTypes()));
-		return result;
-	}
-
-	@Override
 	public boolean isComplete() {
 		return size * 2 == (order - 1) * order;
 	}
 
+	@Override
 	public String toString() {
 		return adjacency.toString();
 	}
 
 	@Override
 	public SortedSet<Integer> getInvertedNeighbours(int node, Boolean condition) {
-		return getNeighbours(node,condition);
+		return getNeighbours(node, condition);
 	}
 }
