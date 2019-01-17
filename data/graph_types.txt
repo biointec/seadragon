@@ -1,0 +1,4 @@
+Simple graph	graphlets.simpleGraphlet.SimpleGraph	simple graph,simplegraph,simgraph,sgraph,graph
+Directed graph	graphlets.diGraphlet.DiGraph	directed graph,digraph
+Coloured graph	graphlets.coGraphlet.CoGraph	coloured graph,colored graph,cograph
+Genetic graph	graphlets.genGraphlet.GenGraph	genetic graph,gengraph

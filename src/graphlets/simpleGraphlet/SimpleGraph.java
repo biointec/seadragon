@@ -10,7 +10,9 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import graphletgeneration.AbstractGraphletFactory;
 import graphlets.AbstractGraph;
+import graphlets.AbstractGraphlet;
 import graphlets.IllegalGraphActionException;
 
 /**
@@ -170,5 +172,15 @@ public class SimpleGraph extends AbstractGraph<Boolean> {
 	@Override
 	public SortedSet<Integer> getInvertedNeighbours(int node, Boolean condition) {
 		return getNeighbours(node, condition);
+	}
+
+	@Override
+	public AbstractGraphletFactory<? extends AbstractGraphlet<Boolean>, Boolean> getGraphletType(boolean useOrbits) {
+		return new SimpleGraphletFactory( useOrbits);
+	}
+
+	@Override
+	public Boolean getType(String pieces) {
+		return true;
 	}
 }

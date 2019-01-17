@@ -19,10 +19,13 @@ import graphlets.IllegalGraphActionException;
 import tree.GraphletTree;
 import tree.TreeGenerator;
 import treewalker.SingleGraphletWalker;
+import treewalker.TreeWalker;
 
 /**
  * Class used to generate Equations for counting graphlets of type T of one
  * higher order than those that were actually found.
+ * 
+ * @see Equation
  * 
  * @author Ine Melckenbeeck
  *
@@ -108,7 +111,7 @@ public class EquationGenerator<T extends AbstractGraphlet<U>, U extends Comparab
 			for (Set<List<Set<Integer>>> rhs : rhses) {
 				int minus = minus(graphlet, rhs.iterator().next());
 				SortedMap<String, Integer> lhs = lhsTerms(graphlet, rhs, minus);
-				if (lhs != null) {
+				if (lhs != null /* && lhs.size() > 1 */) {
 					Equation<T> equation = new Equation<T>(lhs, graphlet, rhs, minus, edgeTypes);
 					result.add(equation);
 				}
@@ -132,6 +135,7 @@ public class EquationGenerator<T extends AbstractGraphlet<U>, U extends Comparab
 		int[] counter = new int[graphlet.getOrder()];
 		counter[counter.length - 1] = 1;
 		Set<Set<List<Set<Integer>>>> rhses = new HashSet<>();
+		// Set<List<Set<Integer>>> completerhs=null;
 		while (counter[0] <= edgeCombinations.size()) {
 			List<Set<Integer>> orbitcheck = new ArrayList<>();
 			for (int j = 0; j < edgeTypes.size(); j++) {
@@ -145,6 +149,7 @@ public class EquationGenerator<T extends AbstractGraphlet<U>, U extends Comparab
 				}
 			}
 			Set<List<Set<Integer>>> rhs = graphlet.getOrbitOf(orbitcheck);
+			// completerhs=rhs;
 			rhses.add(rhs);
 			int i = counter.length - 1;
 			while (i > 0 && counter[i] == edgeCombinations.size()) {
@@ -152,6 +157,7 @@ public class EquationGenerator<T extends AbstractGraphlet<U>, U extends Comparab
 			}
 			counter[i]++;
 		}
+		// rhses.remove(completerhs);
 		return rhses;
 	}
 
@@ -227,10 +233,23 @@ public class EquationGenerator<T extends AbstractGraphlet<U>, U extends Comparab
 						}
 					}
 					copy = factory.canonicalVersion(copy);
-					SortedMap<String, Long> run = new SingleGraphletWalker<>(tree, copy, oldgraphlet, edges, minus)
-							.run(0);
+					TreeWalker<?,?> tw =  new SingleGraphletWalker<>(tree, copy, oldgraphlet, edges, minus);
+					for (int i = 0; i < (factory.isOrbitRep() ? 1 : copy.getOrder()); i++) {
+						tw.run(i);
+					}
+					SortedMap<String,Long>run = tw.exportResults();
+//					tree.print();
+//					System.out.println(run);
+//
+//					System.out.println(copy.representation());
+//					System.out.println(oldgraphlet.representation());
+//					System.out.println(graphlet.representation());
 					Long long1 = run.get("");
 					assert (long1 != null);
+//					System.out.println(copy.representation());
+//					System.out.println(oldgraphlet.representation());
+//					System.out.println(graphlet.representation());
+//					System.out.println(run);
 					lhs.put(copy.canonical(), Math.toIntExact(long1));
 				} catch (IllegalGraphActionException e) {
 				}

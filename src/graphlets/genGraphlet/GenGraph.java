@@ -2,18 +2,15 @@ package graphlets.genGraphlet;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import graphletgeneration.AbstractGraphletFactory;
 import graphlets.AbstractGraph;
+import graphlets.AbstractGraphlet;
 import graphlets.IllegalGraphActionException;
 import graphlets.diGraphlet.DiGraph;
 
@@ -35,30 +32,6 @@ public class GenGraph extends AbstractGraph<Byte> {
 		return result.toString();
 	}
 	
-	
-//	public static void main(String[]args) throws IllegalGraphActionException {
-//		GenGraph graph = new GenGraph();
-//		System.out.println(graph);
-//		graph.addNode();
-//		graph.addNode();
-//		System.out.println(graph);
-//		graph.addEdge(0, 1, (byte)'+');
-//		graph.addEdge(1, 0, (byte)2);
-//		System.out.println(graph);
-//		System.out.println(graph.getEdges(0, 1));
-//		System.out.println(graph.edgeCombinations());
-//		System.out.println(graph.edgeTypes());
-//		
-		
-//				GenGraph graph = readGraph("test/test.txt");
-//				System.out.println(graph);
-//				GraphletTree<GenGraphlet, Byte> tree = new TreeGenerator<>(new GenGraphlet("", true), 3)
-//						.generateTree();
-//				tree.print();
-//				TreeWalker<GenGraphlet, Byte> walker = new TreeWalker<>(tree, graph);
-//				walker.run(System.out);
-//	}
-
 	public static GenGraph readGraph(String filename) {
 		File file = new File(filename);
 		GenGraph result = new GenGraph();
@@ -72,10 +45,7 @@ public class GenGraph extends AbstractGraph<Byte> {
 					if (namen.length >= 3) {
 						int a = Integer.parseInt(namen[0]);
 						int b = Integer.parseInt(namen[1]);
-						
-						
 						if (!started) {
-//							System.out.println("ping");
 							for (int i = 0; i < a; i++) {
 								result.addNode();
 							}
@@ -103,35 +73,17 @@ public class GenGraph extends AbstractGraph<Byte> {
 		return result;
 	}
 
-//	@Override
-//	public boolean isConnected() {
-//		Deque<Integer> queue = new LinkedList<>();
-//		queue.add(0);
-//		Set<Integer> check = new TreeSet<>();
-//		check.add(0);
-//		while (!queue.isEmpty()) {
-//			int node = queue.poll();
-//			for (int neighbour : getNeighbours(node).keySet()) {
-//				if (check.add(neighbour)) {
-//					queue.addLast(neighbour);
-//				}
-//			}
-//		}
-//		return check.size() == order;
-//	}
 
 	@Override
 	public void addNodeInternal() {
 		plus.addNode();
 		minus.addNode();
-//		order++;
 	}
 
 	@Override
 	public void removeNodeInternal(int node) throws IllegalGraphActionException {
 		plus.removeNode(node);
 		minus.removeNode(node);
-//		order--;
 	}
 
 	@Override
@@ -151,24 +103,21 @@ public class GenGraph extends AbstractGraph<Byte> {
 		case -2:
 			minus.addEdge(node1, node2, false);
 			break;
+		default:
+			throw new IllegalGraphActionException("Invalid edge type: "+type);
 		}
-//		size++;
-
 	}
 
 	@Override
 	public void removeEdgeInternal(int node1, int node2) throws IllegalGraphActionException {
 		try {
 			plus.removeEdge(node1, node2);
-//			size--;
 			try {
 				minus.removeEdge(node1, node2);
-//				size--;
 			} catch (IllegalGraphActionException e) {
 			}
 		} catch (IllegalGraphActionException e) {
 			minus.removeEdge(node1, node2);
-//			size--;
 		}
 
 	}
@@ -191,7 +140,6 @@ public class GenGraph extends AbstractGraph<Byte> {
 			minus.removeEdge(node1, node2, false);
 			break;
 		}
-//		size--;
 	}
 
 	@Override
@@ -255,35 +203,6 @@ public class GenGraph extends AbstractGraph<Byte> {
 		return (plus.density() + minus.density()) / 2;
 	}
 
-//	@Override
-//	public List<Byte> edgeTypes() {
-//		List<Byte> result = new ArrayList<>();
-//		result.add((byte) 1);
-//		result.add((byte) -1);
-//		result.add((byte) 2);
-//		result.add((byte) -2);
-//		return result;
-//	}
-//
-//	@Override
-//	public List<SortedSet<Byte>> edgeCombinations() {
-//		List<SortedSet<Byte>> result = new ArrayList<>();
-//		byte[][] options = { { 0, -1, -2 }, { 0, 1, 2 } };
-//		for (int i = 1; i < 9; i++) {
-//			int a = i % 3;
-//			int b = i / 3;
-//			SortedSet<Byte> piece = new TreeSet<>();
-//			if (options[0][a] != 0) {
-//				piece.add(options[0][a]);
-//			}
-//			if (options[1][b] != 0) {
-//				piece.add(options[1][b]);
-//			}
-//			result.add(piece);
-//		}
-//		return result;
-//	}
-
 	@Override
 	public boolean isComplete() {
 		return plus.isComplete() && minus.isComplete();
@@ -292,5 +211,16 @@ public class GenGraph extends AbstractGraph<Byte> {
 	@Override
 	public SortedSet<Integer> getInvertedNeighbours(int node, Byte condition) {
 		return getNeighbours(node,(byte) -condition);
+	}
+	@Override
+	public AbstractGraphletFactory<? extends AbstractGraphlet<Byte>, Byte> getGraphletType(boolean useOrbits) {
+		return new GenGraphletFactory( useOrbits);
+	}
+
+	@Override
+	public Byte getType(String pieces) {
+		
+			return (byte) pieces.charAt(0);
+		
 	}
 }

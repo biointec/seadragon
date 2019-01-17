@@ -10,6 +10,8 @@ import java.util.TreeSet;
 import graphletgeneration.AbstractGraphletFactory;
 import graphlets.AbstractGraphlet;
 import graphlets.IllegalGraphActionException;
+import graphlets.diGraphlet.DiGraphlet;
+import graphlets.diGraphlet.DiGraphletFactory;
 import graphlets.genGraphlet.GenGraphletFactory;
 
 /**
@@ -39,6 +41,11 @@ public class TreeGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U
 	private SortedSet<String> usedGraphlets;
 	private Set<TreeNode<T, U>> toPrune;
 	private AbstractGraphletFactory<T,U> factory;
+	
+//	public static void main(String[]args) {
+//		new TreeGenerator<DiGraphlet,Boolean>(new DiGraphletFactory(false),3).generateTree().print();
+//	}
+	
 
 	/**
 	 * Creates a new TreeGenerator with the
@@ -75,21 +82,31 @@ public class TreeGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U
 		}
 		return tree;
 	}
-	
-	public static void main(String[]args) {
-		new TreeGenerator<>(new GenGraphletFactory(true),3).generateTree().print();
-	}
+//	
+//	public static void main(String[]args) {
+//		new TreeGenerator<>(new GenGraphletFactory(true),3).generateTree().print();
+//	}
 
 	/**
 	 * Breaks the symmetry of the current graphlet and inserts appropriate
 	 * ConditionNodes before the current AddNodeNode.
 	 */
 	private void breakSymmetry() {
+		graphlets.peek().permute();
+//		List<Integer> canonicalAutomorphism = graphlets.peek().getCanonicalAutomorphism();
+//		System.out.println(graphlets.peek().canonical());
+//		System.out.println(graphlets.peek().representation());
+//		System.out.println(graphlets.peek().getAutomorphisms());
 		List<SortedSet<Integer>> cosetreps = graphlets.peek().getCosetReps();
+//		System.out.println(cosetreps);
+//		System.out.println(canonicalAutomorphism);
+//		System.out.println(cosetreps);
 		for (int i = 0; i < order; i++) {
 			for (int j : cosetreps.get(i)) {
 				if (i != j) {
-					ConditionNode<T, U> condition = new ConditionNode<T, U>(currentNodes.peek().parent, i, j);
+//					System.out.println(i+", "+j);
+//					ConditionNode<T, U> condition = new ConditionNode<T, U>(currentNodes.peek().parent,canonicalAutomorphism.indexOf(i), canonicalAutomorphism.indexOf(j));
+					ConditionNode<T, U> condition = new ConditionNode<T, U>(currentNodes.peek().parent,i, j);
 					condition.setChild(currentNodes.peek());
 					currentNodes.peek().parent.replaceChild(currentNodes.peek(), condition);
 					currentNodes.peek().parent = condition;
@@ -111,21 +128,21 @@ public class TreeGenerator<T extends AbstractGraphlet<U>, U extends Comparable<U
 				toPrune.add(currentNodes.peek());
 				return;
 			}
-			if (graphlet.getOrder() == order + 1) {
-				if (graphlet.isComplete()) {
-					breakSymmetry();
-				} else {
-					toPrune.add(currentNodes.peek());
-				}
-				return;
-			}
+//			if (graphlet.getOrder() == order + 1) {
+//				if (graphlet.isComplete()) {
+//					breakSymmetry();
+//				} else {
+//					toPrune.add(currentNodes.peek());
+//				}
+//				return;
+//			}
 			if (graphlet.getOrder() == order) {
 				// The maximum order is reached, no further nodes must be added.
 				breakSymmetry();
 				tree.addLeaf(currentNodes.peek());
-				if (!graphlet.isComplete()) {
+//				if (!graphlet.isComplete()) {
 					return;
-				}
+//				}
 			}
 			// Add a new node to the graphlet connected to the first node of every orbit,
 			// with every possible edge type.

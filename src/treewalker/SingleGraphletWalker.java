@@ -1,6 +1,7 @@
 package treewalker;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -86,10 +87,17 @@ public class SingleGraphletWalker<T extends AbstractGraphlet<U>, U extends Compa
 			translation.add(translatedTerm);
 		}
 		neighbours = translation;
+//		System.out.println(path);
+//		System.out.println(neighbours);
 	}
 
 	protected void register(AddNodeNode<T, U> treeNode) {
+//		System.out.println("register");
+//		System.out.println(results);
 		String canonical = treeNode.getRepresentation();
+//		System.out.println(canonical);
+//		System.out.println(canonical);
+//		System.out.println(instance);
 		if (canonical.equals(graphlet.canonical())) {
 			try {
 				results.put(canonical, results.get(canonical) + 1);
@@ -119,13 +127,19 @@ public class SingleGraphletWalker<T extends AbstractGraphlet<U>, U extends Compa
 	}
 
 	protected void action(TreeNode<T, U> currentNode) {
+//		System.out.println(instance);
+//		System.out.println(currentNode.getRepresentation());
 		if (index < path.size() && currentNode.getRepresentation().equals(path.get(index))) {
 			index++;
 			if (currentNode instanceof AddNodeNode) {
+//				System.out.println("node");
 				addNodeAction((AddNodeNode<T, U>) currentNode);
 			} else if (currentNode instanceof AddEdgeNode) {
+//				System.out.println("edge");
 				addEdgeAction((AddEdgeNode<T, U>) currentNode);
 			} else if (currentNode instanceof ConditionNode) {
+//				System.out.println("condition");
+//				System.out.println(currentNode);
 				conditionAction((ConditionNode<T, U>) currentNode);
 			}
 			index--;

@@ -9,6 +9,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import graphletgeneration.Permutator;
+import graphlets.diGraphlet.DiGraphlet;
 
 /**
  * Abstract class representing graphlets of any kind.
@@ -211,7 +212,7 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 	 * 
 	 * @return <code>true</code> if this graphlet is canonical.
 	 */
-	private boolean permute() {
+	public boolean permute() {
 		automorphisms = new ArrayList<>();
 		canonical = this.representation();
 		boolean result = true;
@@ -308,6 +309,10 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 		return new CanonicalComparator().compare(canonical, graphlet.canonical);
 	}
 
+//	public static void main(String[]args) {
+//		System.out.println(new DiGraphlet("001100",false).getCosetReps());
+//	}
+	
 	/**
 	 * Returns the coset representatives of this graphlet's automorphisms. These are
 	 * used to impose symmetry-breaking constraints on the graphlet's nodes, which
@@ -316,8 +321,9 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 	 * @return the coset representatives of this graphlet's automorphisms.
 	 */
 	public List<SortedSet<Integer>> getCosetReps() {
-		if (!ready)
+		if (!ready) {
 			permute();
+			cosetreps = null;}
 		if (getSymmetry() == 1) {
 			return orbits;
 		} else if (cosetreps == null) {
@@ -325,11 +331,11 @@ public abstract class AbstractGraphlet<T extends Comparable<T>> extends Abstract
 			cosetreps = new ArrayList<>();
 			for (int i = 0; i < order; i++) {
 				cosetreps.add(new TreeSet<>());
-				for (int j = 0; j < automorphismCopy.size(); j++) {
+				for (int j = automorphismCopy.size()-1; j >= 0; j--) {
 					cosetreps.get(i).add(automorphismCopy.get(j).get(i));
 					if (automorphismCopy.get(j).get(i) != i) {
 						automorphismCopy.remove(j);
-						j--;
+//						j--;
 					}
 				}
 			}

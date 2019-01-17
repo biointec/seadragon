@@ -6,6 +6,8 @@ import java.util.SortedMap;
 
 import graphlets.AbstractGraphlet;
 import graphlets.CanonicalComparator;
+import graphlets.diGraphlet.DiGraphlet;
+import graphlets.diGraphlet.DiGraphletFactory;
 
 /**
  * Class to represent an orbit counting equation for the given graphlet type.
@@ -25,6 +27,7 @@ public class Equation<E extends AbstractGraphlet<?>> implements Comparable<Equat
 	private Set<List<Set<Integer>>> commons;
 	private int minus;
 	private List<?> edgeTypes;
+	private int order;
 
 	/**
 	 * Create a new equation with the given parameters.
@@ -47,6 +50,7 @@ public class Equation<E extends AbstractGraphlet<?>> implements Comparable<Equat
 		this.commons = rhs;
 		this.minus = minus;
 		this.edgeTypes = edgeTypes;
+		order = rhsGraphlet.getOrder()+1;
 	}
 
 	@Override
@@ -171,6 +175,71 @@ public class Equation<E extends AbstractGraphlet<?>> implements Comparable<Equat
 		}
 		sb.replace(sb.length() - 3, sb.length(), ")\n");
 		return sb.toString();
+	}
+	
+	public String toLaTeX() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("\\[");
+		for (String graphlet : lhs.keySet()) {
+			if (lhs.get(graphlet) != 1) {
+				sb.append(lhs.get(graphlet));
+				sb.append(" * ");
+			}
+			sb.append("o_{");
+			sb.append(graphlet);
+			sb.append("} + ");
+		}
+		sb.replace(sb.length() - 2, sb.length() - 1, "=");
+		sb.append("\\sum\\limits_{\\left[");
+		StringBuilder list = new StringBuilder();
+		
+		list.append('v');
+		for( char i=1;i<order-1;i++) {
+			list.append(", ");
+			list.append((char)('v'-i));
+		}
+		sb.append(list);
+		sb.append("\\right]: P_{");
+		sb.append(rhsGraphlet);
+		sb.append("}\\left(\\left[");
+		sb.append(list);
+		sb.append("\\right]");
+		sb.append("\\right)} \\left(");
+		for (List<Set<Integer>> term : commons) {
+			sb.append("c\\left(");
+			for (int i = 0; i < edgeTypes.size(); i++) {
+				if (!term.get(i).isEmpty()) {
+					sb.append(edgeTypes.get(i));
+					sb.append(":\\{");
+					boolean start = true;
+					for(int j : term.get(i)) {
+						if(start) {
+							start = false;
+						}else {
+							sb.append(", ");
+						}
+						sb.append((char)('v'-j));
+						}
+					sb.append("\\}");
+					sb.append(";");
+				}
+			}
+			sb.replace(sb.length() - 1, sb.length(), "\\right)");
+			if (minus != 0) {
+				sb.append(" - ");
+				sb.append(minus);
+			}
+			sb.append(" + ");
+
+		}
+		sb.replace(sb.length() - 3, sb.length(), "\\right)\\]\n");
+		return sb.toString();
+	}
+	
+	public static void main(String[]args) {
+		for(Equation <DiGraphlet> e : new EquationGenerator<DiGraphlet,Boolean>(new DiGraphletFactory(false),3).generateEquations()) {
+			System.out.println(e.toLaTeX());
+		}
 	}
 
 }

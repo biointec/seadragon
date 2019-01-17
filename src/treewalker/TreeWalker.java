@@ -41,28 +41,42 @@ public class TreeWalker<T extends AbstractGraphlet<U>, U extends Comparable<U>> 
 	public void run(PrintStream ps) {
 		for (int node = 0; node < graph.getOrder(); node++) {
 			run(node);
+			ps.println();
 			if (tree.isOrbitRep()) {
-				// solve();
-				ps.println(printResults());
-				reset();
+				ps.println(exportResults());
+//				solve();
+//				ps.println(printResults());
+//				reset();
 				// results = new TreeMap<>(new StringComparator());
 			}
 		}
 		if (!tree.isOrbitRep()) {
-			solve();
-			ps.println(printResults());
+			ps.println(exportResults());
+//			solve();
+//			ps.println(printResults());
+//			reset();
 		}
 	}
+	
+	public NavigableMap<String,Long> exportResults(){
+		solve();
+		NavigableMap<String,Long> result= results;
+		reset();
+		return result;
+	}
+	
 
-	public NavigableMap<String, Long> run(int node) {
+	public /*NavigableMap<String, Long>*/void run(int node) {
 		instance.push(node);
 		action(tree.getRoot());
 		instance.pop();
-		solve();
-		return results;
+//		return exportResults();
+//		solve();
+//		return results;
 	}
 
 	protected void solve() {
+//		System.out.println(results);
 		for (String s : results.keySet()) {
 			if (factors.containsKey(s) && factors.get(s) != 1) {
 				results.put(s, results.get(s) / factors.get(s));
@@ -75,7 +89,7 @@ public class TreeWalker<T extends AbstractGraphlet<U>, U extends Comparable<U>> 
 		results = new TreeMap<>(new CanonicalComparator());
 	}
 
-	protected String printResults() {
+	public String printResults() {
 		StringBuilder sb = new StringBuilder();
 		if (results.isEmpty())
 			return "";

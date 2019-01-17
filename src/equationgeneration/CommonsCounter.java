@@ -1,6 +1,7 @@
 package equationgeneration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,13 +75,19 @@ public class CommonsCounter<U extends Comparable<U>> {
 	 * Calculate the common neighbours.
 	 */
 	private void iterativeCommons() {
+//		System.out.println(graph.getNeighbours(47));
 		int[] counter = new int[order];
 		for (int i = 1; i < order; i++)
 			counter[i] = -1;
 		int i = 0;
 		Stack<Set<Integer>> common = new Stack<>();// for backtracking purposes
 		int size = typeCombos.size();
+		int progress = 0;
 		while (counter[0] < graphorder * size) {
+			progress++;
+			if((100*progress)%(int)Math.pow(order,graphorder*size)==0) {
+				System.out.println(100*progress/Math.pow(order,graphorder*size)+"% complete");
+			}
 			if (i == 0) {
 				common.push(graph.getNeighbours(counter[i] / size, typeCombos.get(counter[i] % size)));
 			} else {
@@ -102,6 +109,9 @@ public class CommonsCounter<U extends Comparable<U>> {
 					key.add(map.get(types.get(j)));
 				}
 				commons.put(key, common.peek().size());
+//			}else {
+//				System.out.println(Arrays.toString(counter));
+//				System.out.println(common.peek());
 			}
 			if (i == order - 1 || common.peek().isEmpty()) {
 				common.pop();

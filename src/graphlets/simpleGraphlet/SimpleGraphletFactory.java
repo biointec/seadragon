@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class GraphletFactory extends graphletgeneration.AbstractGraphletFactory<SimpleGraphlet,Boolean> {
+public class SimpleGraphletFactory extends graphletgeneration.AbstractGraphletFactory<SimpleGraphlet,Boolean> {
 
 	private static final char[] characters = {'1'};
 	
-	public GraphletFactory(boolean isOrbitRep) {
+	public SimpleGraphletFactory(boolean isOrbitRep) {
 		super(isOrbitRep);
 	}
 

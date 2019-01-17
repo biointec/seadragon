@@ -11,6 +11,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 
+import graphletgeneration.AbstractGraphletFactory;
 import graphlets.AbstractGraphlet;
 import graphlets.IllegalGraphActionException;
 
@@ -296,5 +297,11 @@ public class SimpleGraphlet extends AbstractGraphlet<Boolean> {
 			return arg0.a == node || arg0.b == node;
 		}
 
+	}
+	
+
+	@Override
+	public AbstractGraphletFactory<? extends AbstractGraphlet<Boolean>, Boolean> getGraphletType(boolean useOrbits) {
+		return new SimpleGraphletFactory( useOrbits);
 	}
 }

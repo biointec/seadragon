@@ -40,7 +40,7 @@ public class EquationWalker<T extends AbstractGraphlet<U>, U extends Comparable<
 		super(tree, graph);
 		this.equations = EquationSelecter.selectEquations(equations);
 		analyseEquations();
-		commons = new CommonsCounter<>(graph, tree.getOrder() + 1,tree.getFactory());
+		commons = new CommonsCounter<>(graph, tree.getOrder(),tree.getFactory());
 //		commons.recursiveCommons();
 	}
 	
@@ -143,7 +143,7 @@ public class EquationWalker<T extends AbstractGraphlet<U>, U extends Comparable<
 		}
 	}
 
-	protected void solve() {
+	public void solve() {
 		for (String s : largerGraphlets) {
 			if (results.containsKey(s)) {
 				long a = results.get(s);

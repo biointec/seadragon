@@ -1,15 +1,26 @@
 package graphlets.genGraphlet;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import graphletgeneration.AbstractGraphletFactory;
 import graphlets.AbstractGraphlet;
 import graphlets.IllegalGraphActionException;
+import graphlets.diGraphlet.DiGraphletFactory;
 
+/**
+ * Genetic Graphlet, i.e. a signed, directed graphlet. Edges in this graphlet
+ * are directed, and carry either a positive (+) or negative (-) sign.
+ * Antiparallel edges may exist, regardless of their respective signs, but
+ * parallel ones may not.
+ * 
+ * Bytes are used to represent the different edge types.
+ * 
+ * @author Ine Melckenbeeck
+ *
+ */
 public class GenGraphlet extends AbstractGraphlet<Byte> {
 
 	/**
@@ -18,7 +29,7 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 	private static final long serialVersionUID = -5796007812371156641L;
 	byte[][] matrix;
 
-	public GenGraphlet(String representation,boolean isOrbitRep) {
+	public GenGraphlet(String representation, boolean isOrbitRep) {
 		super(isOrbitRep);
 		order = (1 + (int) Math.sqrt(1 + 4 * representation.length())) / 2;
 		matrix = new byte[order][order];
@@ -45,25 +56,24 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 		}
 	}
 
+	@Override
 	public String toString() {
 		String result = "";
 		for (byte[] line : matrix) {
 			for (byte b : line) {
-				if(b==1) {
-					result+="+";
-				}else if(b==2) {
-					result+="-";
-				}else if(b==0) {
-					result+="0";
+				if (b == 1) {
+					result += "+";
+				} else if (b == 2) {
+					result += "-";
+				} else if (b == 0) {
+					result += "0";
 				}
 			}
 			result += "\n";
 		}
 		return result;
-		// return result.substring(0,result.length()-1);
 	}
 
-	
 	@Override
 	public void swap(int a, int b) {
 		for (int i = 0; i < order; i++) {
@@ -111,7 +121,6 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 			for (int j = 0; j < order; j++) {
 				if (matrix[i][j] == '+') {
 					builder.append(drawEdge(i, j));
-					// double angle = 0;
 					double angle = 180. / order * (j - i) + 360. / order * i + (i < j ? 180 : 0);
 					builder.append(x(i, 0) + " " + y(i, 0) + " translate\n");
 					builder.append((int) Math.round(angle) + " rotate\n");
@@ -130,7 +139,6 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 					builder.append(-x(i, 0) + " " + -y(i, 0) + " translate\n");
 				} else if (matrix[i][j] == '-') {
 					builder.append(drawEdge(i, j));
-					// double angle = 0;
 					double angle = 180. / order * (j - i) + 360. / order * i + (i < j ? 180 : 0);
 					builder.append(x(i, 0) + " " + y(i, 0) + " translate\n");
 					builder.append((int) Math.round(angle) + " rotate\n");
@@ -155,57 +163,30 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 		return builder;
 	}
 
-//	@Override
-//	public boolean isConnected() {
-//		List<Integer> result = new ArrayList<>();
-//		result.add(0);
-//		for (int i = 0; i < result.size(); i++) {
-//			for (int j = 0; j < order; j++) {
-//				if ((matrix[result.get(i)][j] != 0|| matrix[j][result.get(i)] != 0)&& !result.contains(j)) {
-//					result.add(j);
-//				}
-//			}
-//		}
-//		return result.size() == order;
-//	}
-
 	@Override
 	public void addNodeInternal() {
 		byte[][] oldMatrix = matrix;
-//		order++;
-		matrix = new byte[order+1][order+1];
-		for (int i = 0; i < order ; i++) {
-			for (int j = 0; j < order ; j++) {
+		matrix = new byte[order + 1][order + 1];
+		for (int i = 0; i < order; i++) {
+			for (int j = 0; j < order; j++) {
 				matrix[i][j] = oldMatrix[i][j];
 			}
 			matrix[i][order] = 0;
-			matrix[order ][i] = 0;
+			matrix[order][i] = 0;
 		}
 		matrix[order][order] = 0;
-//		ready=false;
 	}
 
 	@Override
 	public void removeNodeInternal(int i) throws IllegalGraphActionException {
 		checkNode(i);
 		byte[][] oldMatrix = matrix;
-		for(int j=0;j<order;j++) {
-			if(oldMatrix[i][j]!=0) {
-//				size--;
-			}
-			if(oldMatrix[j][i]!=0) {
-//				size--;
-			}
-		}
-//		order--;
-		matrix = new byte[order-1][order-1];
-		for (int k = 0; k < order-1; k++) {
-			for (int j = 0; j < order-1; j++) {
+		matrix = new byte[order - 1][order - 1];
+		for (int k = 0; k < order - 1; k++) {
+			for (int j = 0; j < order - 1; j++) {
 				matrix[k][j] = oldMatrix[k + (k >= i ? 1 : 0)][j + (j >= i ? 1 : 0)];
 			}
 		}
-
-//		ready=false;
 	}
 
 	@Override
@@ -225,19 +206,15 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 			case 1:
 			case '+':
 				matrix[i][j] = 1;
-//				size++;
 				break;
 			case 2:
 			case '-':
 				matrix[i][j] = 2;
-//				size++;
 				break;
 			default:
 				throw new IllegalGraphActionException("Invalid edge type.");
 			}
 		}
-//		ready=false;
-
 	}
 
 	@Override
@@ -247,20 +224,14 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 		checkEdge(i, j);
 		if (matrix[i][j] != 0) {
 			matrix[i][j] = 0;
-//			size--;
 		}
 		if (matrix[j][i] != 0) {
 			matrix[j][i] = 0;
-//			size--;
 		}
-//		ready=false;
 	}
 
 	@Override
 	public void removeEdgeInternal(int i, int j, Byte type) throws IllegalGraphActionException {
-//		checkNode(i);
-//		checkNode(j);
-
 		if (type < 0) {
 			type = (byte) (-type);
 			int reserve = i;
@@ -269,13 +240,10 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 		}
 		if (matrix[i][j] == type) {
 			matrix[i][j] = 0;
-//			size--;
 		} else {
 			throw new IllegalGraphActionException(
 					"No edge of type " + type + " present between node " + i + " and " + j);
 		}
-
-//		ready=false;
 	}
 
 	@Override
@@ -321,7 +289,7 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 				part.add(matrix[i][node]);
 			}
 			if (matrix[node][i] != 0) {
-				part.add((byte)-matrix[node][i]);
+				part.add((byte) -matrix[node][i]);
 			}
 			if (part.size() != 0) {
 				result.put(i, part);
@@ -335,43 +303,18 @@ public class GenGraphlet extends AbstractGraphlet<Byte> {
 		return size / (order - 1.) / order;
 	}
 
-//	@Override
-//	public List<Byte> edgeTypes() {
-//		List<Byte> result = new ArrayList<>();
-//		result.add((byte) 1);
-//		result.add((byte) -1);
-//		result.add((byte) 2);
-//		result.add((byte) -2);
-//		return result;
-//	}
-//
-//	@Override
-//	public List<SortedSet<Byte>> edgeCombinations() {
-//		List<SortedSet<Byte>> result = new ArrayList<>();
-//		byte[][] options = { { 0, -1, -2 }, { 0, 1, 2 } };
-//		for (int i = 1; i < 9; i++) {
-//			int a = i % 3;
-//			int b = i / 3;
-//			SortedSet<Byte> piece = new TreeSet<>();
-//			if (options[0][a] != 0) {
-//				piece.add(options[0][a]);
-//			}
-//			if (options[1][b] != 0) {
-//				piece.add(options[1][b]);
-//			}
-//			result.add(piece);
-//		}
-//		return result;
-//	}
-
 	@Override
 	public boolean isComplete() {
 		return size == order * (order - 1);
 	}
-	
+
 	@Override
 	public SortedSet<Integer> getInvertedNeighbours(int node, Byte condition) {
-		return getNeighbours(node,(byte) -condition);
+		return getNeighbours(node, (byte) -condition);
 	}
 
+	@Override
+	public AbstractGraphletFactory<? extends AbstractGraphlet<Byte>, Byte> getGraphletType(boolean useOrbits) {
+		return new GenGraphletFactory( useOrbits);
+	}
 }

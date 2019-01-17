@@ -9,6 +9,8 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import graphletgeneration.AbstractGraphletFactory;
+
 /**
  * General abstract class that represents a graph of any kind.
  * 
@@ -83,7 +85,9 @@ public abstract class AbstractGraph<T extends Comparable<T>> {
 		addEdgeInternal(node1, node2, edgeType);
 		size++;
 	}
-
+	
+	public abstract T getType(String pieces); 
+	
 	/**
 	 * Internal function to add an edge. Do not call this method, call
 	 * {@link #addEdge(int,int,T)}, which in turn calls this method, instead.
@@ -317,4 +321,6 @@ public abstract class AbstractGraph<T extends Comparable<T>> {
 	 * @return the graph's density.
 	 */
 	public abstract double density();
+	
+	public abstract AbstractGraphletFactory<? extends AbstractGraphlet<T>, T> getGraphletType(boolean useOrbits);
 }

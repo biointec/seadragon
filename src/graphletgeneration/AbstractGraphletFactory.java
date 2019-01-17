@@ -1,5 +1,6 @@
 package graphletgeneration;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -17,7 +18,11 @@ import graphlets.AbstractGraphlet;
  * @param <U>
  *            The graphlet type's edge type.
  */
-public abstract class AbstractGraphletFactory<T extends AbstractGraphlet<U>, U extends Comparable<U>> {
+public abstract class AbstractGraphletFactory<T extends AbstractGraphlet<U>, U extends Comparable<U>> implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2380679247852143419L;
 	protected boolean isOrbitRep;
 
 	/**
@@ -33,6 +38,10 @@ public abstract class AbstractGraphletFactory<T extends AbstractGraphlet<U>, U e
 	 */
 	public AbstractGraphletFactory(boolean isOrbitRep) {
 		this.isOrbitRep = isOrbitRep;
+	}
+	
+	public boolean isOrbitRep() {
+		return isOrbitRep;
 	}
 
 	/**

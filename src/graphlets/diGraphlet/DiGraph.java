@@ -3,18 +3,18 @@ package graphlets.diGraphlet;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import graphletgeneration.AbstractGraphletFactory;
 import graphlets.AbstractGraph;
+import graphlets.AbstractGraphlet;
 import graphlets.IllegalGraphActionException;
+import graphlets.simpleGraphlet.SimpleGraphletFactory;
 
 /**
  * Simple directed graph implementation of AbstractGraph. In this graph, double edges may exist only if they have opposite direction.
@@ -256,6 +256,17 @@ public class DiGraph extends AbstractGraph<Boolean> {
 	@Override
 	public SortedSet<Integer> getInvertedNeighbours(int node, Boolean condition) {
 		return getNeighbours(node,!condition);
+	}
+	
+
+	@Override
+	public AbstractGraphletFactory<? extends AbstractGraphlet<Boolean>, Boolean> getGraphletType(boolean useOrbits) {
+		return new DiGraphletFactory( useOrbits);
+	}
+
+	@Override
+	public Boolean getType(String pieces) {
+		return true;
 	}
 
 }
