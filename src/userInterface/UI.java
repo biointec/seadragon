@@ -27,6 +27,7 @@ import graphlets.AbstractGraph;
 import graphlets.AbstractGraphlet;
 import graphlets.GraphletIO;
 import graphlets.diGraphlet.DiGraph;
+import graphlets.diGraphlet.DiGraphlet;
 import graphlets.diGraphlet.DiGraphletFactory;
 import graphlets.simpleGraphlet.SimpleGraph;
 import tree.GraphletTree;
@@ -163,67 +164,70 @@ public class UI<T extends AbstractGraphlet<U>, U extends Comparable<U>> {
 	}
 
 	public static void main(String[] args) throws Exception {
-//		System.out.println("Candida 4-graphlets");
-		Long time = System.nanoTime();
-//		check("test/candida.txt", "graphlets.simpleGraphlet.SimpleGraph",0,false, 0, 4, 0, "", 0, "", "test/candida_graphlets.out");
-//		System.out.println((System.nanoTime()-time)*1e-9);
-//		System.out.println("Candida 4-orbits");
+//		check("test/test.txt", "graphlets.coGraphlet.CoGraph",3,false, 0, 4, 0, "", 0, "", "test/candida_cographlets.out");
+		
+		long time;
+		System.out.println("Candida 4-cographlets");
+		time = System.nanoTime();
+		check("test/candida.txt", "graphlets.coGraphlet.CoGraph",12,false, 0, 4, 0, "", 0, "", "test/candida_cographlets.out");
+		System.out.println((System.nanoTime()-time)*1e-9);
+		System.out.println("Candida 4-coorbits");
+		time = System.nanoTime();
+		check("test/candida.txt", "graphlets.coGraphlet.CoGraph",12,true, 0, 4, 0, "", 0, "", "test/candida_coorbits.out");
+		System.out.println((System.nanoTime()-time)*1e-9);
+		time = System.nanoTime();
+		System.out.println("Candida 4-graphlets");
+		time = System.nanoTime();
+		check("test/candida.txt", "graphlets.simpleGraphlet.SimpleGraph",0,false, 0, 4, 0, "", 0, "", "test/candida_graphlets.out");
+		System.out.println((System.nanoTime()-time)*1e-9);
+		System.out.println("Candida 4-orbits");
+		time = System.nanoTime();
+		check("test/candida.txt", "graphlets.simpleGraphlet.SimpleGraph",0,true, 0, 4, 0, "", 0, "", "test/candida_orbits.out");
+		System.out.println((System.nanoTime()-time)*1e-9);
+		System.out.println("Candida 4-digraphlets");
+		time = System.nanoTime();
+		check("test/candida.txt", "graphlets.diGraphlet.DiGraph",0,false, 0, 4, 0, "", 0, "", "test/candida_digraphlets.out");
+		System.out.println((System.nanoTime()-time)*1e-9);
+		System.out.println("Candida 4-diorbits");
+		time = System.nanoTime();
+		check("test/candida.txt", "graphlets.diGraphlet.DiGraph",0,true, 0, 4, 0, "", 0, "", "test/candida_diorbits.out");
+		System.out.println((System.nanoTime()-time)*1e-9);
+//		System.out.println("human 4-orbits 0.9");
 //		time = System.nanoTime();
-//		check("test/candida.txt", "graphlets.simpleGraphlet.SimpleGraph",0,true, 0, 4, 0, "", 0, "", "test/candida_orbits.out");
+//		check(false, 0.9, 4, 0, "", 0, "", "test/human9.out");
 //		System.out.println((System.nanoTime()-time)*1e-9);
-//		System.out.println("Candida 4-digraphlets");
-//		Long time = System.nanoTime();
-//		check("test/candida.txt", "graphlets.diGraphlet.DiGraph",0,false, 0, 4, 0, "", 0, "", "test/candida_digraphlets.out");
-//		System.out.println((System.nanoTime()-time)*1e-9);
-//		System.out.println("Candida 4-diorbits");
+//		System.out.println("human 4-orbits 0.8");
 //		time = System.nanoTime();
-//		check("test/candida.txt", "graphlets.diGraphlet.DiGraph",0,true, 0, 4, 0, "", 0, "", "test/candida_diorbits.out");
+//		check(false, 0.8, 4, 0, "", 0, "", "test/human8.out");
 //		System.out.println((System.nanoTime()-time)*1e-9);
-//		System.out.println("Candida 4-cographlets");
+//		System.out.println("human 4-orbits 0.7");
 //		time = System.nanoTime();
-//		check("test/candida.txt", "graphlets.coGraphlet.CoGraph",12,false, 0, 4, 0, "", 0, "", "test/candida_cographlets.out");
+//		check(false, 0.7, 4, 0, "", 0, "", "test/human7.out");
 //		System.out.println((System.nanoTime()-time)*1e-9);
-//		System.out.println("Candida 4-coorbits");
+//		System.out.println("human 4-orbits 0.6");
 //		time = System.nanoTime();
-//		check("test/candida.txt", "graphlets.coGraphlet.CoGraph",12,true, 0, 4, 0, "", 0, "", "test/candida_coorbits.out");
+//		check(false, 0.6, 4, 0, "", 0, "", "test/human6.out");
 //		System.out.println((System.nanoTime()-time)*1e-9);
+//		System.out.println("human 4-orbits 0.5");
 //		time = System.nanoTime();
-		System.out.println("human 4-orbits 0.9");
-		time = System.nanoTime();
-		check("test/human.txt", "graphlets.simpleGraphlet.SimpleGraph",0,false, 0.9, 4, 0, "", 0, "", "test/human9.out");
-		System.out.println((System.nanoTime()-time)*1e-9);
-		System.out.println("human 4-orbits 0.8");
-		time = System.nanoTime();
-		check("test/human.txt", "graphlets.simpleGraphlet.SimpleGraph",0,false, 0.8, 4, 0, "", 0, "", "test/human8.out");
-		System.out.println((System.nanoTime()-time)*1e-9);
-		System.out.println("human 4-orbits 0.7");
-		time = System.nanoTime();
-		check("test/human.txt", "graphlets.simpleGraphlet.SimpleGraph",0,false, 0.7, 4, 0, "", 0, "", "test/human7.out");
-		System.out.println((System.nanoTime()-time)*1e-9);
-		System.out.println("human 4-orbits 0.6");
-		time = System.nanoTime();
-		check("test/human.txt", "graphlets.simpleGraphlet.SimpleGraph",0,false, 0.6, 4, 0, "", 0, "", "test/human6.out");
-		System.out.println((System.nanoTime()-time)*1e-9);
-		System.out.println("human 4-orbits 0.5");
-		time = System.nanoTime();
-		check("test/human.txt", "graphlets.simpleGraphlet.SimpleGraph",0,false, 0.5, 4, 0, "", 0, "", "test/human5.out");
-		System.out.println((System.nanoTime()-time)*1e-9);
-		System.out.println("human 4-orbits 0.4");
-		time = System.nanoTime();
-		check("test/human.txt", "graphlets.simpleGraphlet.SimpleGraph",0,false, 0.4, 4, 0, "", 0, "", "test/human4.out");
-		System.out.println((System.nanoTime()-time)*1e-9);
-		System.out.println("human 4-orbits 0.3");
-		time = System.nanoTime();
-		check("test/human.txt", "graphlets.simpleGraphlet.SimpleGraph",0,false, 0.3, 4, 0, "", 0, "", "test/human3.out");
-		System.out.println((System.nanoTime()-time)*1e-9);
-		System.out.println("human 4-orbits 0.2");
-		time = System.nanoTime();
-		check("test/human.txt", "graphlets.simpleGraphlet.SimpleGraph",0,false, 0.2, 4, 0, "", 0, "", "test/human2.out");
-		System.out.println((System.nanoTime()-time)*1e-9);
-		System.out.println("human 4-orbits 0.1");
-		time = System.nanoTime();
-		check("test/human.txt", "graphlets.simpleGraphlet.SimpleGraph",0,false, 0.1, 4, 0, "", 0, "", "test/human1.out");
-		System.out.println((System.nanoTime()-time)*1e-9);
+//		check(false, 0.5, 4, 0, "", 0, "", "test/human5.out");
+//		System.out.println((System.nanoTime()-time)*1e-9);
+//		System.out.println("human 4-orbits 0.4");
+//		time = System.nanoTime();
+//		check(false, 0.4, 4, 0, "", 0, "", "test/human4.out");
+//		System.out.println((System.nanoTime()-time)*1e-9);
+//		System.out.println("human 4-orbits 0.3");
+//		time = System.nanoTime();
+//		check(false, 0.3, 4, 0, "", 0, "", "test/human3.out");
+//		System.out.println((System.nanoTime()-time)*1e-9);
+//		System.out.println("human 4-orbits 0.2");
+//		time = System.nanoTime();
+//		check(false, 0.2, 4, 0, "", 0, "", "test/human2.out");
+//		System.out.println((System.nanoTime()-time)*1e-9);
+//		System.out.println("human 4-orbits 0.1");
+//		time = System.nanoTime();
+//		check(false, 0.1, 4, 0, "", 0, "", "test/human1.out");
+//		System.out.println((System.nanoTime()-time)*1e-9);
 //		 run("test/candida.txt","graphlets.diGraphlet.DiGraph", 0,false,0,"",4,0,"");
 	}
 
@@ -251,6 +255,43 @@ public class UI<T extends AbstractGraphlet<U>, U extends Comparable<U>> {
 ////			System.out.println(run);
 ////		}
 //	}
+	
+	public static void check(boolean useOrbits, double score, int order, int loadTree, String treeFile,
+			int loadEquations, String equationFile,String resultfile) throws Exception {
+		DiGraph graph =GraphletIO.readMatrix((float) score);
+		AbstractGraphletFactory<DiGraphlet, Boolean> f = (AbstractGraphletFactory<DiGraphlet, Boolean>) graph.getGraphletType(useOrbits);
+		// GraphletIterator<T> gi = new GraphletIterator<>(f,order);
+		GraphletTree<DiGraphlet, Boolean> tree = getTree(loadTree, treeFile, f, order - 1);
+//		tree.print();
+		Collection<Equation<DiGraphlet>> equations = new EquationGenerator<DiGraphlet, Boolean>(f, order, tree).generateEquations();
+//		Collection<Equation<T>> equations = getEquations(loadEquations, equationFile, f, tree, order);
+//		System.out.println();
+//		System.out.println(equations);
+		// while(gi.hasNext()) {
+		// T next = gi.next();
+		// System.out.println(next.representation());
+		System.out.println("Calculating common neighbours...");
+		
+		TreeWalker<DiGraphlet, Boolean> tw = new EquationWalker<>(tree, graph, equations);
+		tw.reset();
+		PrintStream ps = new PrintStream(new File (resultfile));
+		System.out.println("Running...");
+		tw.run(ps);
+		System.out.println("Finished");
+//		for (int i = 0; i < graph.getOrder(); i++) {
+//			NavigableMap<String, Long> run = tw.run(i);
+//			System.out.println(run);
+//			Iterator<String> it = ((NavigableSet<String>) run.keySet()).descendingIterator();
+//			String last = it.next();
+//			String secondLast = it.next();
+//			// if (i == 0 && !last.equals(next.representation()) || run.get(last) != 1
+//			// || secondLast.length() >= last.length()) {
+//			// throw new Exception("Impossible!");
+//			// }
+//			tw.reset();
+			// }
+//		}
+	}
 
 	public static <T extends AbstractGraphlet<U>, U extends Comparable<U>> void check(String graphfile,
 			String graphType, int column, boolean useOrbits, double score, int order, int loadTree, String treeFile,
@@ -261,19 +302,23 @@ public class UI<T extends AbstractGraphlet<U>, U extends Comparable<U>> {
 		// GraphletIterator<T> gi = new GraphletIterator<>(f,order);
 		GraphletTree<T, U> tree = getTree(loadTree, treeFile, f, order - 1);
 //		tree.print();
-		Collection<Equation<T>> equations = new EquationGenerator<T, U>(f, order, tree).generateEquations();
-//		Collection<Equation<T>> equations = getEquations(loadEquations, equationFile, f, tree, order);
+//		Collection<Equation<T>> equations = new EquationGenerator<T, U>(f, order, tree).generateEquations();
+		Collection<Equation<T>> equations = getEquations(loadEquations, equationFile, f, tree, order);
 //		System.out.println();
 //		System.out.println(equations);
 		// while(gi.hasNext()) {
 		// T next = gi.next();
 		// System.out.println(next.representation());
 		System.out.println("Calculating common neighbours...");
+		long time = System.nanoTime();
 		TreeWalker<T, U> tw = new EquationWalker<>(tree, graph, equations);
+		System.out.println((System.nanoTime()-time)/1e9+" s");
 		tw.reset();
 		PrintStream ps = new PrintStream(new File (resultfile));
 		System.out.println("Running...");
+		time = System.nanoTime();
 		tw.run(ps);
+		System.out.println((System.nanoTime()-time)/1e9+" s");
 		System.out.println("Finished");
 //		for (int i = 0; i < graph.getOrder(); i++) {
 //			NavigableMap<String, Long> run = tw.run(i);
@@ -353,7 +398,9 @@ public class UI<T extends AbstractGraphlet<U>, U extends Comparable<U>> {
 			return null;
 		} else {
 			System.out.println("Generating equations...");
+			long time = System.nanoTime();
 			Collection<Equation<T>> result = new EquationGenerator<T, U>(factory, order, tree).generateEquations();
+			System.out.println((System.nanoTime()-time)/1e9+" s");
 			if (loadEquations == -1) {
 				System.out.println("Saving equations...");
 				GraphletIO.save(result, fileName);
@@ -381,7 +428,9 @@ public class UI<T extends AbstractGraphlet<U>, U extends Comparable<U>> {
 			return tree;
 		} else {
 			System.out.println("Generating tree...");
+			long time = System.nanoTime();
 			GraphletTree<T, U> tree = new TreeGenerator<>(factory, order).generateTree();
+			System.out.println((System.nanoTime()-time)/1e9+" s");
 			if (loadTree == -1) {
 				System.out.println("Saving tree...");
 				GraphletIO.save(tree, fileName);

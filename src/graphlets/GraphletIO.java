@@ -1,5 +1,7 @@
 package graphlets;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,6 +18,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import equationgeneration.Equation;
+import graphlets.coGraphlet.CoGraph;
 import graphlets.diGraphlet.DiGraph;
 import graphlets.genGraphlet.GenGraph;
 import graphlets.simpleGraphlet.SimpleGraph;
@@ -66,6 +69,11 @@ public class GraphletIO {
 		save(l, l.get(0).name() + "s-" + l.get(0).getOrder() + ".gpl");
 	}
 
+	public static void main(String[]args) {
+		CoGraph cg = readGraph("test/hiv.txt",CoGraph.class,12);
+		System.out.println(cg.getNColors());
+	}
+	
 	public static <T extends AbstractGraph<U>, U extends Comparable<U>> T readGraph(String filename, Class<T> base,
 			int column) {
 		File file = new File(filename);
@@ -107,13 +115,13 @@ public class GraphletIO {
 								result.addEdge(a, b, result.getType(""));
 							}
 						} catch (IllegalGraphActionException e) {
-//							System.out.println("Ignoring line " + linenr + ": " + e.getMessage());
+//							 System.out.println("Ignoring line " + linenr + ": " + e.getMessage());
 							ignored++;
 						}
 					}
 				}
 			}
-			System.out.println("Ignored "+ignored+" of "+linenr+" lines");
+//			System.out.println("Ignored " + ignored + " of " + linenr + " lines");
 			scanner.close();
 		} catch (FileNotFoundException e) {
 			System.out.println("Invalid file name");
@@ -145,7 +153,7 @@ public class GraphletIO {
 				// System.out.println(s);
 				if (!s.startsWith("#")) {
 					String[] namen = s.split("\t");
-//					System.out.println(Arrays.toString(namen));
+					// System.out.println(Arrays.toString(namen));
 					if (namen.length >= 3) {
 						String c = namen[namen.length - 1];
 						if (namen[namen.length - 1].toLowerCase().startsWith("score:")) {
@@ -176,14 +184,16 @@ public class GraphletIO {
 										result.addEdge(a, b, result.getType(""));
 									}
 								} catch (IllegalGraphActionException e) {
-//									System.out.println("Ignoring line " + linenr + ": " + e.getMessage());
+//									 System.out.println("Ignoring line " + linenr + ": " + e.getMessage());
 									ignored++;
 								}
-//								result.addEdge(a, b, result.getType(namen[column - 1]));
-							}else {
+								// result.addEdge(a, b, result.getType(namen[column - 1]));
+							} else {
+//								 System.out.println("Ignoring line " + linenr + ": " + "too low confidence");
 								ignored++;
 							}
 						} catch (NumberFormatException e) {
+//							 System.out.println("Ignoring line " + linenr + ": " + e.getMessage());
 							ignored++;
 						}
 					}
@@ -214,6 +224,55 @@ public class GraphletIO {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public static DiGraph readMatrix(float threshold) {
+		DiGraph graph = new DiGraph();
+		for(int i=0;i<3172;i++) {
+			graph.addNode();
+		}
+		float[][]matrix = pdat();
+		for(int i=0;i<3172;i++) {
+			for(int j=0;j<3172;j++) {
+//				System.out.print(matrix[i][j]+" ");
+				if(matrix[i][j]>threshold) {
+					try {
+						graph.addEdge(i, j, true);
+					} catch (IllegalGraphActionException e) {
+						// TODO Auto-generated catch block
+//						e.printStackTrace();
+					}
+				}
+			}
+//			System.out.println();
+		}
+		System.out.println(graph.order+", "+graph.size);
+		return graph;
+	}
+	
+	private static float[][] pdat() {
+		int dim = 3172;
+		float[][] matrix = new float[dim][dim];
+		try {
+			DataInputStream in = new DataInputStream(
+					new BufferedInputStream(new FileInputStream("test/findr_geuvadis_ptrans_colorder.dat")));
+			for (int i = 0; i < dim; i++) {
+				for (int j = 0; j < dim; j++) {
+					matrix[i][j] = Float.intBitsToFloat(readInt(in));
+				}
+			}
+			in.close();
+		} catch (Exception e) {
+		}
+		return matrix;
+	}
+
+	private static int readInt(DataInputStream in) throws IOException {
+		int val = 0;
+		for (int i = 0; i < 4; i++) {
+			val = (int) (val | (((int) in.readUnsignedByte()) << (i * 8)));
+		}
+		return val;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -13,6 +13,8 @@ import java.util.TreeSet;
 
 import graphletgeneration.AbstractGraphletFactory;
 import graphlets.AbstractGraph;
+import graphlets.GraphletIO;
+import graphlets.coGraphlet.CoGraph;
 
 /**
  * Common neighbour counter for a given graph.
@@ -25,7 +27,7 @@ import graphlets.AbstractGraph;
 public class CommonsCounter<U extends Comparable<U>> {
 
 	private AbstractGraph<U> graph;
-	private Map<List<SortedSet<Integer>>, Integer> commons;
+	public Map<List<SortedSet<Integer>>, Integer> commons;
 	private List<U> types;
 	private List<SortedSet<U>> typeCombos;
 	private int order;
@@ -53,6 +55,11 @@ public class CommonsCounter<U extends Comparable<U>> {
 		this.order = order;
 		graphorder = graph.getOrder();
 		iterativeCommons();
+//		System.out.println(commons);
+	}
+	
+	public CommonsCounter(AbstractGraph<U> graph, int order) {
+		this(graph,order,graph.getGraphletType(true));
 	}
 
 	/**
@@ -70,24 +77,20 @@ public class CommonsCounter<U extends Comparable<U>> {
 			return 0;
 		}
 	}
-
+	
+	
+	
 	/**
 	 * Calculate the common neighbours.
 	 */
 	private void iterativeCommons() {
-//		System.out.println(graph.getNeighbours(47));
 		int[] counter = new int[order];
 		for (int i = 1; i < order; i++)
 			counter[i] = -1;
 		int i = 0;
 		Stack<Set<Integer>> common = new Stack<>();// for backtracking purposes
 		int size = typeCombos.size();
-		int progress = 0;
 		while (counter[0] < graphorder * size) {
-			progress++;
-			if((100*progress)%(int)Math.pow(order,graphorder*size)==0) {
-				System.out.println(100*progress/Math.pow(order,graphorder*size)+"% complete");
-			}
 			if (i == 0) {
 				common.push(graph.getNeighbours(counter[i] / size, typeCombos.get(counter[i] % size)));
 			} else {

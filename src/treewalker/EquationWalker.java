@@ -144,6 +144,7 @@ public class EquationWalker<T extends AbstractGraphlet<U>, U extends Comparable<
 	}
 
 	public void solve() {
+//		System.out.println(results);
 		for (String s : largerGraphlets) {
 			if (results.containsKey(s)) {
 				long a = results.get(s);

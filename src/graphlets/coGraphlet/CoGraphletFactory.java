@@ -54,6 +54,8 @@ public class CoGraphletFactory extends AbstractGraphletFactory<CoGraphlet,Intege
 			edge.add(i);
 			result.add(edge);
 		}
+//		System.out.println("boop");
+//		System.out.println(result);
 		return result;
 	}
 

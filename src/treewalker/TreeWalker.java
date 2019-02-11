@@ -41,7 +41,7 @@ public class TreeWalker<T extends AbstractGraphlet<U>, U extends Comparable<U>> 
 	public void run(PrintStream ps) {
 		for (int node = 0; node < graph.getOrder(); node++) {
 			run(node);
-			ps.println();
+//			ps.println();
 			if (tree.isOrbitRep()) {
 				ps.println(exportResults());
 //				solve();

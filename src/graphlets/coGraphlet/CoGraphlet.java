@@ -113,6 +113,9 @@ public class CoGraphlet extends AbstractGraphlet<Integer> {
 	protected void addEdgeInternal(int node1, int node2, Integer type) throws IllegalGraphActionException {
 		checkNode(node1);
 		checkNode(node2);
+		if(type>nColors) {
+			nColors=type;
+		}
 		int a = Math.min(node1, node2);
 		int b = Math.max(node2, node1);
 		if (matrix[b][a] != 0) {
@@ -236,7 +239,9 @@ public class CoGraphlet extends AbstractGraphlet<Integer> {
 	// return result;
 	// }
 	//
-	
+	public String toString() {
+		return representation();
+	}
 
 	@Override
 	public AbstractGraphletFactory<? extends AbstractGraphlet<Integer>, Integer> getGraphletType(boolean useOrbits) {

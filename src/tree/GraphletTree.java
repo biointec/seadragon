@@ -25,7 +25,7 @@ public class GraphletTree<T extends AbstractGraphlet<U>, U extends Comparable<U>
 		T root = gf.oneNodeGraphlet();
 //		edgeTypes = gf.edgeTypes();
 		leaves = new ArrayList<>();
-		System.out.println(root);
+//		System.out.println(root);
 		this.root=new AddNodeNode<T,U>(null,root);
 		this.root.tree=this;
 		this.order=order;
