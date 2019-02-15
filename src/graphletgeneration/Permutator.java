@@ -27,7 +27,6 @@ import java.util.List;
 /**
  * Steinhaus-Johnson-Trotter algorithm with speedup by Shimon Even, iterative.
  * 
- * @author Pieter Audenaert
  *
  */
 public class Permutator {
